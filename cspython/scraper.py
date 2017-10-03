@@ -23,6 +23,13 @@ def get_soup(url):
     return soup
 
 
+def get_tables(url):
+    hdr = {'User-Agent': 'Mozilla/5.0'}
+    r = requests.get(url, headers=hdr)
+    tables = pd.read_html(r.text, header=0)
+    return tables
+
+
 def get_match_urls(params):
     done = False
     params['offset'] = 0
@@ -45,41 +52,99 @@ def get_match_urls(params):
             params['offset'] += 100
     del params['offset']
     return urls
+#################################### HEATMAP FUNCTIONS ################################################
+def generate_heatmap_url(stats_page_url):
+    #todo: make this dynamic so we can pull other types of heatmaps eventually
+
+    heatmap_url = stats_page_url + '?showKills=true&showDeaths=false&firstKillsOnly=false&allowEmpty=false&showKillDataset=true&showDeathDataset=true'
+
+#################################### PREFORMANCE PAGE FUNCTIONS #######################################
+
+def get_performance_data(site):
+    tables = get_tables(site)
+    total_team_kda = tables[0]
+    who_kill_who = tables[1]
+    first_kills = tables[2]
+    awp_kills = tables[3]
+    return {
+        'total_team_kda': total_team_kda, # total kills deaths and assists of team
+        'who_kill_who' : who_kill_who, # who killed who
+        'first_kills' : first_kills, #first kill of the round
+        'awp_kills' : awp_kills #awp kills
+    }
 
 
 def parse_stats_performance_page(url):
     # site page example "https://www.hltv.org/stats/matches/performance/mapstatsid/52325/immortals-vs-cloud9"
     # THIS THE STATS/PERFORMANCE PAGE
-    hdr = {'User-Agent': 'Mozilla/5.0'}
-    r = requests.get(url, headers=hdr)
-    tables = pd.read_html(r.text, header=0)
-    total_team_kda = tables[0]
-    who_kill_who = tables[1]
-    first_kills = tables[2]
-    awp_kills = tables[3]
+    soup = get_soup(url)
+    try:  # this section decides whether or not its a 3 map 2 map or 1map series
+        match_3 = "No match_3"
+        best_of_three_data = soup.find_all("div", class_="columns")[0]  # all dictated on whether or not
+        links = []  # this find_all finds the unique 'columns'
+        for link in best_of_three_data.find_all('a'):
+            links.append(link.get("href"))
+        site1 = "https://www.hltv.org" + str(links[1])
+        site2 = "https://www.hltv.org" + str(links[2])
+        try:
+            site3 = "https://www.hltv.org" + str(links[3])
+            match_3 = get_performance_data(site3)
+        finally:
+            match_1 = get_performance_data(site1)
+            match_2 = get_performance_data(site2)
+            return {
+                "match_1": match_1,
+                "match_2": match_2,
+                "match_3": match_3
+            }
+    except:
+        match_1 = get_performance_data(url)
+        return {
+            "match_1": match_1
+        }
 
-    return {
-        'total_team_kda': total_team_kda,  # total kills deaths and assists of team
-        'who_kill_who': who_kill_who,  # who killed who
-        'first_kills': first_kills,  # first kill of the round
-        'awp_kills': awp_kills  # awp kills
-    }
-
-
+#######################Stats page functions###############################
 def parse_stats_page(url):
     # site page example  "https://www.hltv.org/stats/matches/mapstatsid/52325/immortals-vs-cloud9"
     # THIS IS THE STATS PAGE
 
     soup = get_soup(url)
 
+    try:  # this section decides whether or not its a 3 map 2 map or 1map series
+        match_3 = "No match_3"
+        best_of_three_data = soup.find_all("div", class_="columns")[0]  # all dictated on whether or not
+        links = []  # this find_all finds the unique 'columns'
+        for link in best_of_three_data.find_all('a'):
+            links.append(link.get("href"))
+        site1 = "https://www.hltv.org" + str(links[1])
+        site2 = "https://www.hltv.org" + str(links[2])
+        try:
+            site3 = "https://www.hltv.org" + str(links[3])
+            soup = get_soup(site3)
+            match_3 = get_data_page(soup)
+        finally:
+            soup = get_soup(site1)
+            match_1 = get_data_page(soup)
+            soup = get_soup(site2)
+            match_2 = get_data_page(soup)
+            return {
+                "match_1": match_1,
+                "match_2": match_2,
+                "match_3": match_3
+            }
+    except:
+        match_1 = get_data_page(soup)
+        return {
+            "match_1": match_1
+        }
+
+
+def get_data_page(soup):
     match_time = soup.find_all("div", {"class": "small-text"})
     for item in match_time:
         match_time = item.text
     match_time = datetime.datetime.strptime(match_time, '%Y-%m-%d  %H:%MMap')  # match date and time
-    hdr = {'User-Agent': 'Mozilla/5.0'}
-    r = requests.get(url, headers=hdr)
-    tables = pd.read_html(r.text, header=0)
-    team_a_stats, team_b_stats = tables[0], tables[1]
+
 
     round_history_team = soup.find_all("div",
                                        class_="round-history-team-row")  # winner of rounds and how rounds were won
@@ -107,6 +172,7 @@ def parse_stats_page(url):
         'team_endings': [team_a_ending, team_b_ending]  # how the team won the round
     }
 
+###########################Overview page#################################
 
 def parse_match_overview(url):
     #example url: 'https://www.hltv.org/matches/2314604/tyloo-vs-flash-wesg-2017-china-finals'
@@ -173,9 +239,7 @@ def parse_match_overview(url):
     stats_url = 'https://www.hltv.org' + \
                 [a_element['href'] for a_element in soup.find_all("a") if a_element.text == "Detailed stats"][0]
 
-    hdr = {'User-Agent': 'Mozilla/5.0'}
-    r = requests.get(url, headers=hdr)
-    tables = pd.read_html(r.text, header=0)
+    tables = get_tables(url)
     team_a, team_b = tables[0], tables[1]
 
     match_data = {
@@ -211,7 +275,6 @@ def parse_all_match_data(url):
     match_data.update(preformance_data)
 
     return match_data
-
 
 
 def scrape_match_data(team_name, startDate, endDate):
