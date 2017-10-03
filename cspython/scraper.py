@@ -52,11 +52,52 @@ def get_match_urls(params):
             params['offset'] += 100
     del params['offset']
     return urls
+
+
 #################################### HEATMAP FUNCTIONS ################################################
 def generate_heatmap_url(stats_page_url):
     #todo: make this dynamic so we can pull other types of heatmaps eventually
+    heatmap_suffix = '?showKills=true&showDeaths=false&firstKillsOnly=false&allowEmpty=false&showKillDataset=true&showDeathDataset=true'
+    heatmap_url = stats_page_url.replace('/matches/', '/matches/heatmap/') + heatmap_suffix
+    return heatmap_url
 
-    heatmap_url = stats_page_url + '?showKills=true&showDeaths=false&firstKillsOnly=false&allowEmpty=false&showKillDataset=true&showDeathDataset=true'
+
+def get_heatmap(site):
+    soup = get_soup(site)
+    divs = soup.find_all('div', class_='heatmap heatmap-data')
+    heatmap_1 = divs[0]['data-heatmap-config']
+    heatmap_2 = divs[1]['data-heatmap-config']
+    return{
+            "heat_maps" : [heatmap_1, heatmap_2]
+        }
+
+
+def parse_heatmap(site):
+    soup = get_soup(site)
+    try:                         #this section decides whether or not its a 3 map 2 map or 1map series
+        match_3 = "No match_3"
+        best_of_three_data = soup.find_all("div", class_ ="columns")[0]  # all dictated on whether or not
+        links = []                                                       #this find_all finds the unique 'columns'
+        for link in best_of_three_data.find_all('a'):
+            links.append(link.get("href"))
+        site1 = "https://www.hltv.org" + str(links[1])
+        site2 = "https://www.hltv.org" + str(links[2])
+        try:
+            site3 = "https://www.hltv.org" + str(links[3])
+            match_3 = get_heatmap(site3)
+        finally:
+            match_1 = get_heatmap(site1)
+            match_2 = get_heatmap(site2)
+            return {
+                "match_1": match_1,
+                "match_2": match_2,
+                "match_3": match_3
+            }
+    except:
+        match_1 = get_heatmap(site)
+        return{
+            "match_1": match_1
+        }
 
 #################################### PREFORMANCE PAGE FUNCTIONS #######################################
 

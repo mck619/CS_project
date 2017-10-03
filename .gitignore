@@ -1,0 +1,5 @@
+.idea/
+cspython.egg-info/
+Usersmckak/
+.ipynb_checkpoints/
+*.pyc
