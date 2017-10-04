@@ -19,6 +19,7 @@ def get_soup(url):
     hdr = {'User-Agent': 'Mozilla/5.0'}
     req = urllib2.Request(url,headers=hdr)
     page = urllib2.urlopen(req)
+    time.sleep(5)
     soup = BeautifulSoup(page)
     return soup
 
@@ -26,6 +27,7 @@ def get_soup(url):
 def get_tables(url):
     hdr = {'User-Agent': 'Mozilla/5.0'}
     r = requests.get(url, headers=hdr)
+    time.sleep(5)
     tables = pd.read_html(r.text, header=0)
     return tables
 
@@ -221,13 +223,13 @@ def parse_match_overview(url):
     soup = get_soup(url)
 
     demo_url = 'https://www.hltv.org' + soup.find_all("a", class_="flexbox left-right-padding")[0]['href']
-    best_of_1 = False
+    map_name_one = team_a_score_map_one = team_b_score_map_one = map_name_two = team_a_score_map_two = \
+        team_b_score_map_two = map_name_three = team_a_score_map_three = team_b_score_map_three = 'NA'
     try:
         vetos = soup.find_all("div", class_="standard-box veto-box")[1].find_all("div")[0].find_all("div")
         vetos = [veto.text for veto in vetos]
     except:
         vetos = None
-        best_of_1 = True
 
     team_name = soup.find_all("div", class_="standard-box teamsBox")[0].find_all("div", class_="teamName")
     team_info = soup.find_all("div", class_="flexbox fix-half-width-margin maps")[0].find_all("div", class_="results")
@@ -240,7 +242,6 @@ def parse_match_overview(url):
     for best in best_of:
         best_of = best.text
     if "Best of 3" in best_of:
-        best_of = "Best of 3"
         map_name_one = soup.find_all("div", class_="mapname")[0]
         for name in map_name_one:
             map_name_one = name
@@ -258,31 +259,29 @@ def parse_match_overview(url):
         try:
             team_a_score_map_three = team_info[2].find_all("span")[0].text
             team_b_score_map_three = team_info[2].find_all("span")[2].text
-
         except:
-            team_b_score_map_three = 'NA'
-            team_a_score_map_three = 'NA'
-
+            pass
 
     elif "Best of 1" in best_of:
-        best_of = "Best of 1"
         map_name_one = soup.find_all("div", class_="mapname")[0]
         for name in map_name_one:
             map_name_one = name
         team_a_score_map_one = team_info[0].find_all("span")[0].text
         team_b_score_map_one = team_info[0].find_all("span")[2].text
-        map_name_two = team_a_score_map_two = team_b_score_map_two = map_name_three = team_a_score_map_three = \
-            team_b_score_map_three = 'NA'
 
+    elif "forfeit" in best_of:
+        print "Forfeit"
     else:
-        print("new type of match format")
+        print 'New Form of match ' + url
 
-    stats_url = 'https://www.hltv.org' + \
+    try:
+        stats_url = 'https://www.hltv.org' + \
                 [a_element['href'] for a_element in soup.find_all("a") if a_element.text == "Detailed stats"][0]
-
-    tables = get_tables(url)
-    team_a, team_b = tables[0], tables[1]
-
+        tables = get_tables(url)
+        team_a, team_b = tables[0], tables[1]
+    except:
+        stats_url = "NA"
+        team_a = team_b = "NA"
     match_data = {
         'team_a_b': (team_a_name, team_b_name),
         'map_one': (map_name_one, team_a_score_map_one, team_b_score_map_one),
@@ -326,13 +325,15 @@ def scrape_match_data(team_name, startDate, endDate):
         'endDate':endDate
     }
     urls = get_match_urls(params)
+    scrape(parse_all_match_data,urls)
+
+def scrape(page_to_scrape,urls):
     matches = []
     for idx, url in enumerate(urls):
-        matches.append(parse_all_match_data(url))
+        matches.append(page_to_scrape(url))
         time.sleep(5)
-        print 'match {0} done'.format(idx)
-    return matches
-
+        print'match {0} done'.format(idx)
+        return matches
 
 if __name__ == '__main__':
 
