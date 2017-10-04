@@ -8,6 +8,11 @@ import urlparse
 import os
 
 
+class modifiedSoup(BeautifulSoup):
+    def __init__(self, *args, **kwargs):
+        self._url = None
+        BeautifulSoup.__init__(self, *args, **kwargs)
+
 def get_teamID(team_name):
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     team_info = pd.read_csv(os.path.join(dir_path,'scrapped_data','team_info.csv'), index_col=0)
@@ -19,7 +24,9 @@ def get_soup(url):
     hdr = {'User-Agent': 'Mozilla/5.0'}
     req = urllib2.Request(url,headers=hdr)
     page = urllib2.urlopen(req)
-    soup = BeautifulSoup(page)
+    soup = modifiedSoup(page, "lxml")
+    soup._url = url
+    print soup._url
     return soup
 
 
@@ -30,14 +37,14 @@ def get_tables(url):
     return tables
 
 
+
 def get_match_urls(params):
     done = False
     params['offset'] = 0
     urls = []
     while not done:
         match_page = "https://www.hltv.org/results?offset={offset}&content=demo&team={teamID}&startDate={" \
-                     "startDate}&endDate={endDate}".format(
-            **params)
+                     "startDate}&endDate={endDate}".format(**params)
         soup = get_soup(match_page)
         matches = soup.find_all("div", class_='results-all')
 
@@ -55,6 +62,7 @@ def get_match_urls(params):
 
 
 #################################### HEATMAP FUNCTIONS ################################################
+
 def generate_heatmap_url(stats_page_url):
     #todo: make this dynamic so we can pull other types of heatmaps eventually
     heatmap_suffix = '?showKills=true&showDeaths=false&firstKillsOnly=false&allowEmpty=false&showKillDataset=true&showDeathDataset=true'
