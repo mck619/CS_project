@@ -25,10 +25,13 @@ def get_soup(url):
     req = urllib2.Request(url,headers=hdr)
     page = urllib2.urlopen(req)
 <<<<<<< HEAD
+<<<<<<< HEAD
     soup = modifiedSoup(page, "lxml")
     soup._url = url
     print soup._url
 =======
+=======
+>>>>>>> 35180e9c0d85d92718c2c8f6fa426f22a169902f
     time.sleep(5)
     soup = BeautifulSoup(page)
 >>>>>>> 35180e9c0d85d92718c2c8f6fa426f22a169902f
