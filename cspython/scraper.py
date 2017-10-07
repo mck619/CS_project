@@ -158,7 +158,7 @@ def get_performance_data(url):
     # site page example  "https://www.hltv.org/stats/matches/mapstatsid/52325/immortals-vs-cloud9"
     # THIS IS THE OVERVIEW PAGE
 
-def get_overview_data(url):  # SLICEING VERSION
+def get_overview_data(url):
     soup = get_soup(url)
     match_time = get_overview_round_match_time(soup)
     round_history = soup.find_all("div", class_="round-history-team-row")
