@@ -156,39 +156,49 @@ def get_performance_data(url):
 #######################OVERVIEW page functions###############################
 
     # site page example  "https://www.hltv.org/stats/matches/mapstatsid/52325/immortals-vs-cloud9"
-    # THIS IS THE STATS PAGE
+    # THIS IS THE OVERVIEW PAGE
 
 def get_overview_data(url):
     soup = get_soup(url)
+    match_time = get_overview_round_match_time(soup)
+    round_history = soup.find_all("div", class_="round-history-team-row")
+    team_scores = get_overview_round_for_loop(round_history, get_overview_round_scores)
+    team_endings = get_overview_round_for_loop(round_history, get_overview_round_endings)
+
+    return {
+        'match_time': match_time,
+        'team_scores': team_scores,
+        'team_endings': team_endings
+    }
+
+def get_overview_round_match_time(soup):
     match_time = soup.find_all("div", {"class": "small-text"})
     for item in match_time:
         match_time = item.text
     match_time = datetime.datetime.strptime(match_time, '%Y-%m-%d  %H:%MMap')  # match date and time
-    round_history_team = soup.find_all("div", class_="round-history-team-row")  # winner of rounds and how rounds were won
-    round_history_team_a = round_history_team[0].find_all("img")
-    round_history_team_b = round_history_team[1].find_all("img")
-    team_a_scores = []
-    for scoreing in round_history_team_a:
-        team_a_scores.append([scoreing.get('title')])  # rounds that team a won
-    team_b_scores = []
-    for scoreing in round_history_team_b:
-        team_b_scores.append([scoreing.get('title')])  # rounds that team b won
-    team_a_ending = []
-    for ending in round_history_team_a:
-        url = urlparse.urlparse(ending.get('src'))
-        base = os.path.basename(url.path)  # how team a won the round
-        team_a_ending.append([os.path.splitext(base)[0]])
-    team_b_ending = []
-    for ending in round_history_team_b:
-        url = urlparse.urlparse(ending.get('src'))
-        base = os.path.basename(url.path)
-        team_b_ending.append([os.path.splitext(base)[0]])  # how team b won the round
-    return {
-        'match_time': match_time,  # match date and time
-        'team_scores': [team_a_scores, team_b_scores],  # rounds that team a won
-        'team_endings': [team_a_ending, team_b_ending]  # how the team won the round
-    }
+    return match_time
 
+
+def get_overview_round_for_loop(round_history, get_overview_round_type):
+    team_info = {'team_a': [], 'team_b': []}
+    for tround_a, tround_b in zip(round_history[0].find_all("img"), round_history[1].find_all("img")):
+        team_info = get_overview_round_type(tround_a, tround_b, team_info)
+    return team_info
+
+def get_overview_round_scores(tround_a, tround_b, team_info):
+    team_info['team_a'].append([tround_a.get('title')])  # rounds that team a won
+    team_info['team_b'].append([tround_b.get('title')])
+    return team_info    # rounds that team b won
+
+def get_overview_round_endings(tround_a, tround_b, team_info):
+    team_info['team_a'].append([os.path.splitext(get_base_name_from_url(tround_a))[0]])
+    team_info['team_b'].append([os.path.splitext(get_base_name_from_url(tround_b))[0]])
+    return team_info  # how team a won the round
+
+def get_base_name_from_url(tround):
+    url = urlparse.urlparse(tround.get('src'))
+    base = os.path.basename(url.path)
+    return base
 ###########################Stats page#################################
 
 def get_primary_stats_page(url):
