@@ -53,6 +53,7 @@ def make_matches_url_loop(matches):
 
 
 def sum_digits_in_string(digit):
+    digit = digit.split()
     return sum(int(x) for x in digit if x.isdigit())
 
 
@@ -103,7 +104,7 @@ def bof_testing(bof, url, type_of_parse):  # CANNOT BE USED WITH BASIC STATS PAG
     all_matches = {}
     sites = get_urls_from_columns(url)
     if total_sum == 1:
-        return 'forfeit'
+        return ['Forfeit', bof]
     if total_sum >= 2:
         all_matches.update({'match_1': type_of_parse(sites[1]), 'match_2': type_of_parse(sites[2])})
         if total_sum >= 3:
@@ -200,77 +201,81 @@ def get_base_name_from_url(tround):
     base = os.path.basename(url.path)
     return base
 ###########################Stats page#################################
-
-def get_primary_stats_page(url):
-    #example url: 'https://www.hltv.org/matches/2314604/tyloo-vs-flash-wesg-2017-china-finals'
-    #THIS IS THE MATCH STATS SITE
-    soup = get_soup(url)
-
-    demo_url = 'https://www.hltv.org' + soup.find_all("a", class_="flexbox left-right-padding")[0]['href']
-    map_name_one = team_a_score_map_one = team_b_score_map_one = map_name_two = team_a_score_map_two = \
-        team_b_score_map_two = map_name_three = team_a_score_map_three = team_b_score_map_three = 'NA'
+def get_primary_stats_page_veto(soup):
     try:
         vetos = soup.find_all("div", class_="standard-box veto-box")[1].find_all("div")[0].find_all("div")
         vetos = [veto.text for veto in vetos]
     except:
         vetos = None
+    return vetos
 
+def get_primary_stats_page_tname(soup):
     team_name = soup.find_all("div", class_="standard-box teamsBox")[0].find_all("div", class_="teamName")
-    team_info = soup.find_all("div", class_="flexbox fix-half-width-margin maps")[0].find_all("div", class_="results")
-
     for name in team_name[0]:
         team_a_name = name
     for name in team_name[1]:
         team_b_name = name
-    best_of = soup.find_all("div", class_="padding preformatted-text")
-    for best in best_of:
-        best_of = best.text
-    if "Best of 3" in best_of:
-        map_name_one = soup.find_all("div", class_="mapname")[0]
-        for name in map_name_one:
-            map_name_one = name
-        map_name_two = soup.find_all("div", class_="mapname")[1]
-        for name in map_name_two:
-            map_name_two = name
-        map_name_three = soup.find_all("div", class_="mapname")[2]
-        for name in map_name_three:
-            map_name_three = name
+    return {
+        'team_a_b': [team_a_name, team_b_name]
+    }
 
-        team_a_score_map_one = team_info[0].find_all("span")[0].text
-        team_b_score_map_one = team_info[0].find_all("span")[2].text
-        team_a_score_map_two = team_info[1].find_all("span")[0].text
-        team_b_score_map_two = team_info[1].find_all("span")[2].text
-        try:
-            team_a_score_map_three = team_info[2].find_all("span")[0].text
-            team_b_score_map_three = team_info[2].find_all("span")[2].text
-        except:
-            pass
+def get_primary_stats_bof(bof, primary_parser,soup):
+    bof_sum = sum_digits_in_string(bof)
+    if bof_sum == 1:
+        match_info = ['Forfeit', bof]
+        return match_info
+    if bof_sum > 15:
+        bof_sum = 1
+    match_info = []
+    for i in range(0,bof_sum):
+        match_info.append(primary_parser(soup, i))
+    return match_info
 
-    elif "Best of 1" in best_of:
-        map_name_one = soup.find_all("div", class_="mapname")[0]
-        for name in map_name_one:
-            map_name_one = name
-        team_a_score_map_one = team_info[0].find_all("span")[0].text
-        team_b_score_map_one = team_info[0].find_all("span")[2].text
+def get_primary_stats_map_name(soup, i):
+    name = soup.find_all("div", class_="mapname")[i].text
+    return name
 
-    elif "forfeit" in best_of:
-        print "Forfeit"
-    else:
-        print 'New Form of match ' + url
+def get_primary_stats_map_scores(soup, i):
+    team_info = soup.find_all("div", class_="flexbox fix-half-width-margin maps")[0].find_all("div", class_="results")
+    team_a_score = team_info[i].find_all("span")[0].text
+    team_b_score = team_info[i].find_all("span")[2].text
+    return {
+        'team_scores' : [team_a_score, team_b_score]
+    }
 
+def get_primary_organize_data(map_names, map_scores):
+    if map_names[0] == 'Forfeit':
+        return map_names
+    match_info = {}
+    for i in range(0, len(map_names)):
+        match_info[str(map_names[i])] = map_scores[i]
+
+    return match_info
+
+def get_primary_stats_page(url, bof):
+    # example url: 'https://www.hltv.org/matches/2314604/tyloo-vs-flash-wesg-2017-china-finals'
+    # THIS IS THE MATCH STATS SITE
+    soup = get_soup(url)
+    vetos = get_primary_stats_page_veto(soup)
+    team_a_b = get_primary_stats_page_tname(soup)  # gets team names
+    map_names = get_primary_stats_bof(bof, get_primary_stats_map_name, soup)  # output dependent on the best of result
+    map_scores = get_primary_stats_bof(bof, get_primary_stats_map_scores,
+                                       soup)  # output dependent on the best of result
+    match_info = get_primary_organize_data(map_names, map_scores)
     try:
+        demo_url = 'https://www.hltv.org' + soup.find_all("a", class_="flexbox left-right-padding")[0]['href']
         stats_url = 'https://www.hltv.org' + \
-                [a_element['href'] for a_element in soup.find_all("a") if a_element.text == "Detailed stats"][0]
+                    [a_element['href'] for a_element in soup.find_all("a") if a_element.text == "Detailed stats"][0]
         tables = get_tables(url)
         team_a, team_b = tables[0], tables[1]
     except:
+        demo_url = "NA"
         stats_url = "NA"
         team_a = team_b = "NA"
+
     match_data = {
-        'team_a_b': (team_a_name, team_b_name),
-        'map_one': (map_name_one, team_a_score_map_one, team_b_score_map_one),
-        'map_two': (map_name_two, team_a_score_map_two, team_b_score_map_two),
-        'map_three': (map_name_three, team_a_score_map_three, team_b_score_map_three),
+        'team_a_b': team_a_b,
+        'match_info': match_info,
         'url': url,
         'vetos': vetos,
         'stats_url': stats_url,
