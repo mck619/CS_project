@@ -97,7 +97,6 @@ def get_urls_from_columns(url):
 
 # currently works with get_performance_data, get_overview_data, get_heat_maps
 def bof_testing(bof, url, type_of_parse):  # CANNOT BE USED WITH BASIC STATS PAGE PRIMARY_STATS_PAGE
-
     total_sum = sum_digits_in_string(bof)
     if total_sum > 15:
         return type_of_parse(url)
@@ -284,24 +283,24 @@ def get_primary_stats_page(url, bof):
     return match_data
 
 
-def parse_all_match_data(url):
+def parse_all_match_data(url, bof):
     ## this stuff should all be moved to another function which aggregates all sites
 
-    match_data = get_primary_stats_page(url)
+    match_data = get_primary_stats_page(url,bof)
     stats_url = match_data['stats_url']
-    map_stats_url = 'https://www.hltv.org/stats/matches/mapstatsid/' + stats_url.split('/')[5] + '/' + \
+    map_stats_url = 'https://www.hltv.org/stats/matches/' + stats_url.split('/')[5] + '/' + \
                     stats_url.split('/')[6]
-    preformance_url = 'https://www.hltv.org/stats/matches/performance/mapstatsid/' + stats_url.split('/')[5] + '/' + \
+    performance_url = 'https://www.hltv.org/stats/matches/performance/' + stats_url.split('/')[5] + '/' + \
                       stats_url.split('/')[6]
 
     match_data['map_stats_url'] = map_stats_url
-    match_data['preformance_url'] = preformance_url
+    match_data['preformance_url'] = performance_url
 
-    stats_data = get_overview_data(map_stats_url)
-    preformance_data = get_performance_data(preformance_url)
+    stats_data = bof_testing(bof,map_stats_url, get_overview_data)
+    performance_data = bof_testing(bof,performance_url, get_performance_data)
 
     match_data.update(stats_data)
-    match_data.update(preformance_data)
+    match_data.update(performance_data)
 
     return match_data
 
@@ -313,18 +312,21 @@ def scrape_match_data(team_name, startDate, endDate):
         'startDate':startDate,
         'endDate':endDate
     }
-    urls = get_matches_result_page_urls_bof(params)
-    scrape(parse_all_match_data,urls)
+    urls_bof = get_matches_result_page_urls_bof(params)
+    matches = scrape(parse_all_match_data,urls_bof)
+    return matches
 
-def scrape(page_to_scrape,urls):
+def scrape(page_to_scrape,urls_bof):
     matches = []
+    urls = urls_bof['urls']
+    bof = urls_bof['bof']
     for idx, url in enumerate(urls):
-        matches.append(page_to_scrape(url))
+        matches.append(page_to_scrape(url,bof[idx]))
         time.sleep(5)
         print'match {0} done'.format(idx)
     return matches
 
-"""if __name__ == '__main__':
+if __name__ == '__main__':
 
     team_name = 'TyLoo'
     startDate = '2017-08-01'
@@ -332,4 +334,4 @@ def scrape(page_to_scrape,urls):
 
     matches = scrape_match_data(team_name, startDate, endDate)
     print matches
-"""
+
