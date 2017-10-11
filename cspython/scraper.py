@@ -34,6 +34,7 @@ def get_soup(url):
 def get_tables(url):
     hdr = {'User-Agent': 'Mozilla/5.0'}
     r = requests.get(url, headers=hdr)
+    print url
     time.sleep(5)
     tables = pd.read_html(r.text, header=0)
     return tables
@@ -164,12 +165,12 @@ def get_overview_data(url):
     round_history = soup.find_all("div", class_="round-history-team-row")
     team_scores = get_overview_round_for_loop(round_history, get_overview_round_scores)
     team_endings = get_overview_round_for_loop(round_history, get_overview_round_endings)
-    performance_url = get_performance_url(soup)
+
     return {
         'match_time': match_time,
         'team_scores': team_scores,
         'team_endings': team_endings,
-        'performance_url':performance_url
+
     }
 
 def get_overview_round_match_time(soup):
@@ -200,12 +201,6 @@ def get_base_name_from_url(tround):
     url = urlparse.urlparse(tround.get('src'))
     base = os.path.basename(url.path)
     return base
-
-def get_performance_url(soup):
-    links = soup.find_all('a', class_="stats-top-menu-item stats-top-menu-item-link")
-    for l in links:
-        if l.text == 'Performance':
-            return 'https://www.hltv.org' + l['href']
 
 ###########################Stats page#################################
 
@@ -298,11 +293,10 @@ def parse_all_match_data(url, bof):
     ## this stuff should all be moved to another function which aggregates all sites
 
     match_data = get_primary_stats_page(url,bof)
-
     stats_data = bof_testing(bof, match_data['stats_url'], get_overview_data)
     match_data.update(stats_data)
-
-    performance_data = bof_testing(bof,match_data['performance_url'], get_performance_data)
+    performance_url = match_data['stats_url'].replace('/matches/', '/matches/performance/')
+    performance_data = bof_testing(bof,performance_url, get_performance_data)
     match_data.update(performance_data)
 
     return match_data
@@ -329,9 +323,9 @@ def scrape(page_to_scrape,urls_bof):
         print'match {0} done'.format(idx)
     return matches
 
-if __name__ == '__main__':
-    team_name = 'NRG'
-    startDate = '2017-09-25'
+if __name__ == '__main__':      # year month day
+    team_name = 'BIG'
+    startDate = '2017-10-10'
     endDate = '2017-10-10'
 
     # team_name = 'TyLoo'
@@ -340,4 +334,5 @@ if __name__ == '__main__':
 
     matches = scrape_match_data(team_name, startDate, endDate)
     print matches
+
 
