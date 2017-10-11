@@ -164,11 +164,12 @@ def get_overview_data(url):
     round_history = soup.find_all("div", class_="round-history-team-row")
     team_scores = get_overview_round_for_loop(round_history, get_overview_round_scores)
     team_endings = get_overview_round_for_loop(round_history, get_overview_round_endings)
-
+    performance_url = get_performance_url(soup)
     return {
         'match_time': match_time,
         'team_scores': team_scores,
-        'team_endings': team_endings
+        'team_endings': team_endings,
+        'performance_url':performance_url
     }
 
 def get_overview_round_match_time(soup):
@@ -199,7 +200,16 @@ def get_base_name_from_url(tround):
     url = urlparse.urlparse(tround.get('src'))
     base = os.path.basename(url.path)
     return base
+
+def get_performance_url(soup):
+    links = soup.find_all('a', class_="stats-top-menu-item stats-top-menu-item-link")
+    for l in links:
+        if l.text == 'Performance':
+            return 'https://www.hltv.org' + l['href']
+
 ###########################Stats page#################################
+
+
 def get_primary_stats_page_veto(soup):
     try:
         vetos = soup.find_all("div", class_="standard-box veto-box")[1].find_all("div")[0].find_all("div")
@@ -278,7 +288,8 @@ def get_primary_stats_page(url, bof):
         'url': url,
         'vetos': vetos,
         'stats_url': stats_url,
-        'teams': [team_a, team_b]
+        'teams': [team_a, team_b],
+        'demo_url':demo_url
     }
     return match_data
 
@@ -287,19 +298,11 @@ def parse_all_match_data(url, bof):
     ## this stuff should all be moved to another function which aggregates all sites
 
     match_data = get_primary_stats_page(url,bof)
-    stats_url = match_data['stats_url']
-    map_stats_url = 'https://www.hltv.org/stats/matches/' + stats_url.split('/')[5] + '/' + \
-                    stats_url.split('/')[6]
-    performance_url = 'https://www.hltv.org/stats/matches/performance/' + stats_url.split('/')[5] + '/' + \
-                      stats_url.split('/')[6]
 
-    match_data['map_stats_url'] = map_stats_url
-    match_data['preformance_url'] = performance_url
-
-    stats_data = bof_testing(bof,map_stats_url, get_overview_data)
-    performance_data = bof_testing(bof,performance_url, get_performance_data)
-
+    stats_data = bof_testing(bof, match_data['stats_url'], get_overview_data)
     match_data.update(stats_data)
+
+    performance_data = bof_testing(bof,match_data['performance_url'], get_performance_data)
     match_data.update(performance_data)
 
     return match_data
@@ -327,10 +330,13 @@ def scrape(page_to_scrape,urls_bof):
     return matches
 
 if __name__ == '__main__':
+    team_name = 'NRG'
+    startDate = '2017-09-25'
+    endDate = '2017-10-10'
 
-    team_name = 'TyLoo'
-    startDate = '2017-08-01'
-    endDate = '2017-10-01'
+    # team_name = 'TyLoo'
+    # startDate = '2017-08-01'
+    # endDate = '2017-10-01'
 
     matches = scrape_match_data(team_name, startDate, endDate)
     print matches
