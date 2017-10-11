@@ -6,7 +6,7 @@ import time
 import datetime
 import urlparse
 import os
-
+import cPickle as pkl
 
 class modifiedSoup(BeautifulSoup):
     def __init__(self, *args, **kwargs):
@@ -101,18 +101,19 @@ def bof_testing(bof, url, type_of_parse):  # CANNOT BE USED WITH BASIC STATS PAG
     total_sum = sum_digits_in_string(bof)
     if total_sum > 15:
         return type_of_parse(url)
-    all_matches = {}
+    all_matches = []
     sites = get_urls_from_columns(url)
     if total_sum == 1:
         return ['Forfeit', bof]
     if total_sum >= 2:
-        all_matches.update({'match_1': type_of_parse(sites[1]), 'match_2': type_of_parse(sites[2])})
+        all_matches.append(type_of_parse(sites[1]))
+        all_matches.append(type_of_parse(sites[2]))
         if total_sum >= 3:
-            all_matches.update({'match_3': type_of_parse(sites[3])})
+            all_matches.append(type_of_parse(sites[3]))
             if total_sum >= 4:
-                all_matches.update({'match_4': type_of_parse(sites[4])})
+                all_matches.append(type_of_parse(sites[4]))
                 if total_sum == 5:
-                    all_matches.update({'match_5': type_of_parse(sites[5])})
+                    all_matches.append(type_of_parse(sites[5]))
                 else:
                     all_matches.update({'match_unknown': 'Unknown'})
     return all_matches
@@ -294,10 +295,13 @@ def parse_all_match_data(url, bof):
 
     match_data = get_primary_stats_page(url,bof)
     stats_data = bof_testing(bof, match_data['stats_url'], get_overview_data)
-    match_data.update(stats_data)
+    match_data['stats_data'] = stats_data
     performance_url = match_data['stats_url'].replace('/matches/', '/matches/performance/')
-    performance_data = bof_testing(bof,performance_url, get_performance_data)
-    match_data.update(performance_data)
+    performance_data = bof_testing(bof, performance_url, get_performance_data)
+    if isinstance(performance_data, dict):
+        match_data['match_data'] = [performance_data]
+    else:
+        match_data['match_data'] = performance_data
 
     return match_data
 
@@ -323,16 +327,26 @@ def scrape(page_to_scrape,urls_bof):
         print'match {0} done'.format(idx)
     return matches
 
+
+def save_data(matches, name):
+    with open(name, 'wb') as f:
+        pkl.dump(matches, f)
+
 if __name__ == '__main__':      # year month day
-    team_name = 'BIG'
-    startDate = '2017-10-10'
-    endDate = '2017-10-10'
+    # team_name = 'Immortals'
+    # startDate = '2016-10-10'
+    # endDate = '2017-10-10'
 
     # team_name = 'TyLoo'
     # startDate = '2017-08-01'
     # endDate = '2017-10-01'
 
+    team_name = 'BIG'
+    startDate = '2017-01-29'
+    endDate = '2017-02-01'
+
+
     matches = scrape_match_data(team_name, startDate, endDate)
-    print matches
+
 
 
