@@ -298,7 +298,7 @@ def get_primary_stats_page(url, bof):
 def get_map_pool_url(soup):
     all_as = soup.find_all('a', class_="sidebar-single-line-item")
     for a in all_as:
-        if a.text == 'Map Pool':
+        if a.text == 'Map pool':
             url = 'https://www.hltv.org' + a['href']
             return url
     return False
