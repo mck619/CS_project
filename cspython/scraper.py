@@ -256,6 +256,22 @@ def get_primary_organize_data(map_names, map_scores):
 
     return match_info
 
+def split_tables_scoreboard(tables):
+    team_a_scoreboards = []
+    team_b_scoreboards = []
+
+    if len(tables) == 6:
+            team_a_scoreboards.append(tables[0])
+            team_b_scoreboards.append(tables[1])
+    if len(tables) > 6:
+        for i in range(2,len(tables)-4):
+            if i % 2 == 0:
+                team_a_scoreboards.append(tables[i])
+            else:
+                team_b_scoreboards.append(tables[i])
+    return {
+        'team_scoreboards' : [team_a_scoreboards, team_b_scoreboards] #these tables matchup positionally with the map names coming from match_info,
+       }
 def get_primary_stats_page(url, bof):
     # example url: 'https://www.hltv.org/matches/2314604/tyloo-vs-flash-wesg-2017-china-finals'
     # THIS IS THE MATCH STATS SITE
@@ -271,7 +287,8 @@ def get_primary_stats_page(url, bof):
         stats_url = 'https://www.hltv.org' + \
                     [a_element['href'] for a_element in soup.find_all("a") if a_element.text == "Detailed stats"][0]
         tables = get_tables(url)
-        team_a, team_b = tables[0], tables[1]
+        team_scoreboards = split_tables_scoreboard(tables)
+
     except:
         demo_url = "NA"
         stats_url = "NA"
@@ -283,7 +300,7 @@ def get_primary_stats_page(url, bof):
         'url': url,
         'vetos': vetos,
         'stats_url': stats_url,
-        'teams': [team_a, team_b],
+        'team_scoreboards': team_scoreboards,  #these tables matchup positionally with the map names coming from match_info,
         'demo_url':demo_url
     }
     return match_data
