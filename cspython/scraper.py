@@ -251,9 +251,10 @@ def get_primary_stats_map_scores(soup, i):
 def get_primary_organize_data(map_names, map_scores):
     if map_names[0] == 'Forfeit':
         return map_names
-    match_info = {}
+    match_info = []
     for i in range(0, len(map_names)):
-        match_info[str(map_names[i])] = map_scores[i]
+        match_info.append({'map_name': str(map_names[i]),
+                           'scores': map_scores[i]['team_scores']})
 
     return match_info
 
@@ -267,6 +268,7 @@ def get_primary_stats_page(url, bof):
     map_scores = get_primary_stats_bof(bof, get_primary_stats_map_scores,
                                        soup)  # output dependent on the best of result
     match_info = get_primary_organize_data(map_names, map_scores)
+    map_pool = get_map_pool(soup)
     try:
         demo_url = 'https://www.hltv.org' + soup.find_all("a", class_="flexbox left-right-padding")[0]['href']
         stats_url = 'https://www.hltv.org' + \
@@ -279,16 +281,35 @@ def get_primary_stats_page(url, bof):
         team_a = team_b = "NA"
 
     match_data = {
-        'team_a_b': team_a_b,
+        'team_a_b': team_a_b['team_a_b'],
         'match_info': match_info,
         'url': url,
         'vetos': vetos,
         'stats_url': stats_url,
         'teams': [team_a, team_b],
-        'demo_url':demo_url
+        'demo_url':demo_url,
+        'map_pool':map_pool
     }
     return match_data
 
+
+def get_map_pool_url(soup):
+    all_as = soup.find_all('a', class_="sidebar-single-line-item")
+    for a in all_as:
+        if a.text == 'Map Pool':
+            url = 'https://www.hltv.org' + a['href']
+            return url
+    return False
+
+def get_map_pool(soup):
+    url = get_map_pool_url(soup)
+    if url:
+        pool_page_soup = get_soup(url)
+        all_maps = pool_page_soup.find_all('div', class_='map-pool-map-name')
+        pool = [map.text for map in all_maps]
+        return pool
+    else:
+        return None
 
 def parse_all_match_data(url, bof):
     ## this stuff should all be moved to another function which aggregates all sites
@@ -309,7 +330,7 @@ def parse_all_match_data(url, bof):
     return match_data
 
 
-def scrape_match_data(team_name, startDate, endDate):
+def scrape_series_data(team_name, startDate, endDate):
     teamID = get_teamID(team_name)
     params = {
         'teamID':teamID,
@@ -317,8 +338,8 @@ def scrape_match_data(team_name, startDate, endDate):
         'endDate':endDate
     }
     urls_bof = get_matches_result_page_urls_bof(params)
-    matches = scrape(parse_all_match_data,urls_bof)
-    return matches
+    series = scrape(parse_all_match_data,urls_bof)
+    return series
 
 def scrape(page_to_scrape,urls_bof):
     matches = []
@@ -349,7 +370,7 @@ if __name__ == '__main__':      # year month day
     endDate = '2017-02-01'
 
 
-    matches = scrape_match_data(team_name, startDate, endDate)
+    matches = scrape_series_data(team_name, startDate, endDate)
 
 
 
