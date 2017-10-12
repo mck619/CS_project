@@ -295,7 +295,10 @@ def parse_all_match_data(url, bof):
 
     match_data = get_primary_stats_page(url,bof)
     stats_data = bof_testing(bof, match_data['stats_url'], get_overview_data)
-    match_data['stats_data'] = stats_data
+    if isinstance(stats_data, dict):
+        match_data['stats_data'] = [stats_data]
+    else:
+        match_data['stats_data'] = stats_data
     performance_url = match_data['stats_url'].replace('/matches/', '/matches/performance/')
     performance_data = bof_testing(bof, performance_url, get_performance_data)
     if isinstance(performance_data, dict):
