@@ -6,7 +6,7 @@ import time
 import datetime
 import urlparse
 import os
-
+import cPickle as pkl
 
 class modifiedSoup(BeautifulSoup):
     def __init__(self, *args, **kwargs):
@@ -26,15 +26,17 @@ def get_soup(url):
     page = urllib2.urlopen(req)
     soup = modifiedSoup(page, "lxml")
     soup._url = url
-    print soup._url
+    if VERBOSE_URL:
+        print soup._url
     time.sleep(5)
     return soup
 
 
-def get_tables(url):
+def get_tables(url, verbose=False):
     hdr = {'User-Agent': 'Mozilla/5.0'}
     r = requests.get(url, headers=hdr)
-    print url
+    if VERBOSE_URL:
+        print url
     time.sleep(5)
     tables = pd.read_html(r.text, header=0)
     return tables
@@ -101,18 +103,19 @@ def bof_testing(bof, url, type_of_parse):  # CANNOT BE USED WITH BASIC STATS PAG
     total_sum = sum_digits_in_string(bof)
     if total_sum > 15:
         return type_of_parse(url)
-    all_matches = {}
+    all_matches = []
     sites = get_urls_from_columns(url)
     if total_sum == 1:
         return ['Forfeit', bof]
     if total_sum >= 2:
-        all_matches.update({'match_1': type_of_parse(sites[1]), 'match_2': type_of_parse(sites[2])})
+        all_matches.append(type_of_parse(sites[1]))
+        all_matches.append(type_of_parse(sites[2]))
         if total_sum >= 3:
-            all_matches.update({'match_3': type_of_parse(sites[3])})
+            all_matches.append(type_of_parse(sites[3]))
             if total_sum >= 4:
-                all_matches.update({'match_4': type_of_parse(sites[4])})
+                all_matches.append(type_of_parse(sites[4]))
                 if total_sum == 5:
-                    all_matches.update({'match_5': type_of_parse(sites[5])})
+                    all_matches.append(type_of_parse(sites[5]))
                 else:
                     all_matches.update({'match_unknown': 'Unknown'})
     return all_matches
@@ -250,9 +253,10 @@ def get_primary_stats_map_scores(soup, i):
 def get_primary_organize_data(map_names, map_scores):
     if map_names[0] == 'Forfeit':
         return map_names
-    match_info = {}
+    match_info = []
     for i in range(0, len(map_names)):
-        match_info[str(map_names[i])] = map_scores[i]
+        match_info.append({'map_name': str(map_names[i]),
+                           'scores': map_scores[i]['team_scores']})
 
     return match_info
 
@@ -282,6 +286,7 @@ def get_primary_stats_page(url, bof):
     map_scores = get_primary_stats_bof(bof, get_primary_stats_map_scores,
                                        soup)  # output dependent on the best of result
     match_info = get_primary_organize_data(map_names, map_scores)
+    map_pool = get_map_pool(soup)
     try:
         demo_url = 'https://www.hltv.org' + soup.find_all("a", class_="flexbox left-right-padding")[0]['href']
         stats_url = 'https://www.hltv.org' + \
@@ -295,31 +300,60 @@ def get_primary_stats_page(url, bof):
         team_a = team_b = "NA"
 
     match_data = {
-        'team_a_b': team_a_b,
+        'team_a_b': team_a_b['team_a_b'],
         'match_info': match_info,
         'url': url,
         'vetos': vetos,
         'stats_url': stats_url,
         'team_scoreboards': team_scoreboards,  #these tables matchup positionally with the map names coming from match_info,
         'demo_url':demo_url
-    }
+        'teams': [team_a, team_b],
+        'demo_url':demo_url,
+        'map_pool':map_pool
+   }
     return match_data
 
+
+def get_map_pool_url(soup):
+    all_as = soup.find_all('a', class_="sidebar-single-line-item")
+    for a in all_as:
+        if a.text == 'Map Pool':
+            url = 'https://www.hltv.org' + a['href']
+            return url
+    return False
+
+def get_map_pool(soup):
+    url = get_map_pool_url(soup)
+    if url:
+        pool_page_soup = get_soup(url)
+        all_maps = pool_page_soup.find_all('div', class_='map-pool-map-name')
+        pool = [map.text for map in all_maps]
+        return pool
+    else:
+        return None
 
 def parse_all_match_data(url, bof):
     ## this stuff should all be moved to another function which aggregates all sites
 
     match_data = get_primary_stats_page(url,bof)
     stats_data = bof_testing(bof, match_data['stats_url'], get_overview_data)
-    match_data.update(stats_data)
+    if isinstance(stats_data, dict):
+        match_data['stats_data'] = [stats_data]
+    else:
+        match_data['stats_data'] = stats_data
     performance_url = match_data['stats_url'].replace('/matches/', '/matches/performance/')
-    performance_data = bof_testing(bof,performance_url, get_performance_data)
-    match_data.update(performance_data)
+    performance_data = bof_testing(bof, performance_url, get_performance_data)
+    if isinstance(performance_data, dict):
+        match_data['match_data'] = [performance_data]
+    else:
+        match_data['match_data'] = performance_data
 
     return match_data
 
 
-def scrape_match_data(team_name, startDate, endDate):
+def scrape_series_data(team_name, startDate, endDate, verbose=False):
+    global VERBOSE_URL
+    VERBOSE_URL = verbose
     teamID = get_teamID(team_name)
     params = {
         'teamID':teamID,
@@ -327,8 +361,8 @@ def scrape_match_data(team_name, startDate, endDate):
         'endDate':endDate
     }
     urls_bof = get_matches_result_page_urls_bof(params)
-    matches = scrape(parse_all_match_data,urls_bof)
-    return matches
+    series = scrape(parse_all_match_data,urls_bof)
+    return series
 
 def scrape(page_to_scrape,urls_bof):
     matches = []
@@ -340,16 +374,26 @@ def scrape(page_to_scrape,urls_bof):
         print'match {0} done'.format(idx)
     return matches
 
+
+def save_data(matches, name):
+    with open(name, 'wb') as f:
+        pkl.dump(matches, f)
+
 if __name__ == '__main__':      # year month day
-    team_name = 'BIG'
-    startDate = '2017-10-10'
-    endDate = '2017-10-10'
+    # team_name = 'Immortals'
+    # startDate = '2016-10-10'
+    # endDate = '2017-10-10'
 
     # team_name = 'TyLoo'
     # startDate = '2017-08-01'
     # endDate = '2017-10-01'
 
-    matches = scrape_match_data(team_name, startDate, endDate)
-    print matches
+    team_name = 'BIG'
+    startDate = '2017-01-29'
+    endDate = '2017-02-01'
+
+
+    matches = scrape_series_data(team_name, startDate, endDate, verbose=True)
+
 
 
