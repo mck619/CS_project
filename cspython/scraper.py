@@ -306,8 +306,6 @@ def get_primary_stats_page(url, bof):
         'vetos': vetos,
         'stats_url': stats_url,
         'team_scoreboards': team_scoreboards,  #these tables matchup positionally with the map names coming from match_info,
-        'demo_url':demo_url
-        'teams': [team_a, team_b],
         'demo_url':demo_url,
         'map_pool':map_pool
    }
