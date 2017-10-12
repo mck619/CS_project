@@ -26,15 +26,17 @@ def get_soup(url):
     page = urllib2.urlopen(req)
     soup = modifiedSoup(page, "lxml")
     soup._url = url
-    print soup._url
+    if VERBOSE_URL:
+        print soup._url
     time.sleep(5)
     return soup
 
 
-def get_tables(url):
+def get_tables(url, verbose=False):
     hdr = {'User-Agent': 'Mozilla/5.0'}
     r = requests.get(url, headers=hdr)
-    print url
+    if VERBOSE_URL:
+        print url
     time.sleep(5)
     tables = pd.read_html(r.text, header=0)
     return tables
@@ -330,7 +332,9 @@ def parse_all_match_data(url, bof):
     return match_data
 
 
-def scrape_series_data(team_name, startDate, endDate):
+def scrape_series_data(team_name, startDate, endDate, verbose=False):
+    global VERBOSE_URL
+    VERBOSE_URL = verbose
     teamID = get_teamID(team_name)
     params = {
         'teamID':teamID,
@@ -370,7 +374,7 @@ if __name__ == '__main__':      # year month day
     endDate = '2017-02-01'
 
 
-    matches = scrape_series_data(team_name, startDate, endDate)
+    matches = scrape_series_data(team_name, startDate, endDate, verbose=True)
 
 
 
