@@ -382,6 +382,41 @@ def save_data(matches, name):
     with open(name, 'wb') as f:
         pkl.dump(matches, f)
 
+def make_matches_result_count(matches):
+    count = 0
+    results = matches[0].find_all("a", class_="a-reset")
+    for result in results:
+        count += 1
+    return count
+
+#THIS OUTPUTS A QUICK COUNT OF RESULTS BASED ON THE PARAMETERS
+def get_result_page_match_count(team_name, startDate, endDate, verbose = False):
+    done = False
+    global VERBOSE_URL
+    VERBOSE_URL = verbose
+    teamID = get_teamID(team_name)
+    params = {
+        'teamID': teamID,
+        'startDate': startDate,
+        'endDate': endDate
+    }
+    params['offset'] = 0
+    count = 0
+    while not done:
+        matches = get_matches_result_page_soup(params)
+        if len(matches) == 0:
+            break
+
+        count += make_matches_result_count(matches)
+
+        if count % 100 != 0:
+            done = True
+        else:
+            params['offset'] += 100
+
+    del params['offset']
+    print 'There are, ', count, ' series with these parameters'
+
 if __name__ == '__main__':
 
     # year month day
@@ -394,11 +429,12 @@ if __name__ == '__main__':
     # endDate = '2017-10-01'
 
     team_name = 'Cloud9'
-    startDate = '2016-10-01'
-    endDate = '2017-10-31'
+    startDate = '2017-10-06'
+    endDate = '2017-10-10'
 
-    series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save='Cloud9_10_16_to_10_17')
+    get_result_page_match_count(team_name, startDate, endDate)
+    #series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save='Cloud9_10_16_to_10_17')
 
-    save_data(series, 'Cloud9_10_16_to_10_17')
+    #save_data(series, 'Cloud9_10_16_to_10_17')
 
 
