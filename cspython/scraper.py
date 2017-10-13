@@ -393,12 +393,12 @@ if __name__ == '__main__':
     # startDate = '2017-08-01'
     # endDate = '2017-10-01'
 
-    team_name = 'CLG'
+    team_name = 'Cloud9'
     startDate = '2016-10-01'
     endDate = '2017-10-31'
 
-    series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save='CLG_10_16_to_10_17')
+    series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save='Cloud9_10_16_to_10_17')
 
-    save_data(series, 'CLG_10_16_to_10_17')
+    save_data(series, 'Cloud9_10_16_to_10_17')
 
 
