@@ -5,8 +5,10 @@ import requests
 import time
 import datetime
 import urlparse
-import os
+import os, sys
 import cPickle as pkl
+sys.setrecursionlimit(15000)
+
 
 class modifiedSoup(BeautifulSoup):
     def __init__(self, *args, **kwargs):
@@ -69,19 +71,21 @@ def make_matches_bof_loop(matches):
 def get_matches_result_page_urls_bof(params):
     done = False
     params['offset'] = 0
-
+    urls = []
+    bof = []
     while not done:
         matches = get_matches_result_page_soup(params)
         if len(matches) == 0:
             break
 
-        urls = make_matches_url_loop(matches)
-        bof = make_matches_bof_loop(matches)
+        urls += make_matches_url_loop(matches)
+        bof += make_matches_bof_loop(matches)
 
         if len(urls) % 100 != 0:
             done = True
         else:
             params['offset'] += 100
+
     del params['offset']
     return {
         'urls' : urls,
@@ -273,9 +277,8 @@ def split_tables_scoreboard(tables):
                 team_a_scoreboards.append(tables[i])
             else:
                 team_b_scoreboards.append(tables[i])
-    return {
-        'team_scoreboards' : [team_a_scoreboards, team_b_scoreboards] #these tables matchup positionally with the map names coming from match_info,
-       }
+    return [team_a_scoreboards, team_b_scoreboards] #these tables matchup positionally with the map names coming from match_info,
+
 def get_primary_stats_page(url, bof):
     # example url: 'https://www.hltv.org/matches/2314604/tyloo-vs-flash-wesg-2017-china-finals'
     # THIS IS THE MATCH STATS SITE
@@ -349,7 +352,7 @@ def parse_all_match_data(url, bof):
     return match_data
 
 
-def scrape_series_data(team_name, startDate, endDate, verbose=False):
+def scrape_series_data(team_name, startDate, endDate, verbose=False, pkl_save=False):
     global VERBOSE_URL
     VERBOSE_URL = verbose
     teamID = get_teamID(team_name)
@@ -359,25 +362,29 @@ def scrape_series_data(team_name, startDate, endDate, verbose=False):
         'endDate':endDate
     }
     urls_bof = get_matches_result_page_urls_bof(params)
-    series = scrape(parse_all_match_data,urls_bof)
-    return series
+    all_series = scrape(parse_all_match_data,urls_bof, pkl_save)
+    return all_series
 
-def scrape(page_to_scrape,urls_bof):
-    matches = []
+def scrape(page_to_scrape,urls_bof, pkl_save=False):
+    all_series = []
     urls = urls_bof['urls']
     bof = urls_bof['bof']
     for idx, url in enumerate(urls):
-        matches.append(page_to_scrape(url,bof[idx]))
+        all_series.append(page_to_scrape(url,bof[idx]))
         time.sleep(5)
         print'match {0} done'.format(idx)
-    return matches
+        if pkl_save and idx%5==0:
+            save_data(all_series, pkl_save)
+    return all_series
 
 
 def save_data(matches, name):
     with open(name, 'wb') as f:
         pkl.dump(matches, f)
 
-if __name__ == '__main__':      # year month day
+if __name__ == '__main__':
+
+    # year month day
     # team_name = 'Immortals'
     # startDate = '2016-10-10'
     # endDate = '2017-10-10'
@@ -386,12 +393,12 @@ if __name__ == '__main__':      # year month day
     # startDate = '2017-08-01'
     # endDate = '2017-10-01'
 
-    team_name = 'BIG'
-    startDate = '2017-01-29'
-    endDate = '2017-02-01'
+    team_name = 'CLG'
+    startDate = '2016-10-01'
+    endDate = '2017-10-31'
 
+    series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save='CLG_10_16_to_10_17')
 
-    matches = scrape_series_data(team_name, startDate, endDate, verbose=True)
-
+    save_data(series, 'CLG_10_16_to_10_17')
 
 
