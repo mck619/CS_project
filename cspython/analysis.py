@@ -113,3 +113,33 @@ def match_win_counts(match, team):
         played_first = 'T'
 
     return ct_wins, ct_rounds_played, t_wins, t_rounds_played, played_first
+
+
+def map_roster_analysis(big_data, team, cur_roster):
+    roster_matches = roster_match(big_data, team, cur_roster)
+    match_overview = create_team_match_overview(big_data, team)
+
+    match_overview.loc[:, 'roster_matches'] = match_overview.series_id.map(roster_matches)
+    match_overview.loc[:, 'roster_weight'] = (match_overview.loc[:, 'roster_matches'] / 5).astype(float)
+
+    match_overview.loc[:, 't_win_ratio'] = (match_overview.loc[:, 't_wins'] / match_overview.loc[:, 't_rounds_played']).astype(float)
+    match_overview.loc[:, 'ct_win_ratio'] = (match_overview.loc[:, 'ct_wins'] / match_overview.loc[:, 'ct_rounds_played']).astype(float)
+    match_overview.loc[:, 't_win_ratio_weighted'] = (match_overview.loc[:, 't_wins'] / match_overview.loc[:, 't_rounds_played']).astype(float) * match_overview.roster_weight
+    match_overview.loc[:, 'ct_win_ratio_weighted'] = (match_overview.loc[:, 'ct_wins'] / match_overview.loc[:, 'ct_rounds_played']).astype(float) * match_overview.roster_weight
+
+    for col in ['t_wins', 'ct_wins', 't_rounds_played', 'ct_rounds_played']:
+        match_overview.loc[:, col] = pd.to_numeric(match_overview.loc[:, col])
+
+    round_count = match_overview.groupby('map').sum()[['t_rounds_played', 'ct_rounds_played']]
+    ratios = match_overview.groupby('map').mean().loc[:, ['t_win_ratio', 'ct_win_ratio']]
+    t_weighted = match_overview.groupby('map').sum().loc[:, 't_win_ratio_weighted'] / match_overview.groupby('map').sum().loc[:, 'roster_weight']
+    ct_weighted = match_overview.groupby('map').sum().loc[:, 'ct_win_ratio_weighted'] / match_overview.groupby('map').sum().loc[:, 'roster_weight']
+
+    results = pd.concat([ratios, t_weighted, ct_weighted, round_count], axis=1)
+    results.columns = ['t_win_ratio', 'ct_win_ratio',
+                       'roster_weighted_t_win_ratio',
+                       'roster_weighted_ct_win_ratio',
+                       't_rounds_played',
+                       'ct_rounds_played']
+
+    return results
