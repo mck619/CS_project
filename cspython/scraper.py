@@ -363,10 +363,11 @@ def parse_all_match_data(url, bof):
     return match_data
 
 
-def scrape_series_data(team_name, startDate, endDate, verbose=False, pkl_save=False):
+def scrape_series_data(team_name, startDate, endDate, verbose=False, pkl_save=False, teamID=False):
     global VERBOSE_URL
     VERBOSE_URL = verbose
-    teamID = get_teamID(team_name)
+    if not teamID:
+        teamID = get_teamID(team_name)
     params = {
         'teamID':teamID,
         'startDate':startDate,
@@ -487,21 +488,39 @@ if __name__ == '__main__':
     # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
     # save_data(series, filename)
 
-    team_name = 'Renegades'
-    startDate = '2016-10-01'
-    endDate = '2017-07-22'
-    filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
-    save_data(series, filename)
+    # team_name = 'Renegades'
+    # startDate = '2016-10-01'
+    # endDate = '2017-07-22'
+    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    # save_data(series, filename)
 
 
 
 
-    # team_name = 'Tempo Storm'
+    # team_name = 'Tempo-Storm-b'
+    # teamID = 8221
     # startDate = '2016-10-01'
     # endDate = '2017-10-13'
     # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename, teamID=teamID)
     #
     # save_data(series, filename)
 
+    team_name = 'paiN'
+    teamID = 8079
+    startDate = '2016-10-01'
+    endDate = '2017-10-13'
+    filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename, teamID=teamID)
+
+    save_data(series, filename)
+
+    team_name = 'ex-paiN'
+    teamID = 4773
+    startDate = '2016-10-01'
+    endDate = '2017-10-13'
+    filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename, teamID=teamID)
+
+    save_data(series, filename)
