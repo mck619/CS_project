@@ -7,6 +7,7 @@ import datetime
 import urlparse
 import os, sys
 import cPickle as pkl
+import pdb
 sys.setrecursionlimit(15000)
 
 
@@ -96,9 +97,11 @@ def get_matches_result_page_urls_bof(params):
 def get_urls_from_columns(url):
     soup = get_soup(url)
     links = []
-    bof_site = soup.find_all("div", class_="columns")[0]
-    for link in bof_site.find_all('a'):
-        links.append("https://www.hltv.org" + str(link.get("href")))
+    bof_site_columns = soup.find_all("div", class_="columns")
+    #pdb.set_trace()
+    for bof_site in bof_site_columns:
+        for link in bof_site.find_all('a'):
+            links.append("https://www.hltv.org" + str(link.get("href")))
     return links
 
 
@@ -117,6 +120,7 @@ def bof_testing(bof, url, type_of_parse):  # CANNOT BE USED WITH BASIC STATS PAG
         if total_sum >= 3:
             all_matches.append(type_of_parse(sites[3]))
             if total_sum >= 4:
+                #pdb.set_trace()
                 all_matches.append(type_of_parse(sites[4]))
                 if total_sum == 5:
                     all_matches.append(type_of_parse(sites[5]))
@@ -227,7 +231,7 @@ def get_primary_stats_page_tname(soup):
     for name in team_name[1]:
         team_b_name = name
     return {
-        'team_a_b': [team_a_name, team_b_name]
+        'team_a_b': [str(team_a_name), str(team_b_name)]
     }
 
 def get_primary_stats_bof(bof, primary_parser,soup):
@@ -267,16 +271,19 @@ def get_primary_organize_data(map_names, map_scores):
 def split_tables_scoreboard(tables):
     team_a_scoreboards = []
     team_b_scoreboards = []
-
-    if len(tables) == 6:
+    #pdb.set_trace()
+    if len(tables) <= 7:
             team_a_scoreboards.append(tables[0])
             team_b_scoreboards.append(tables[1])
-    if len(tables) > 6:
+    if len(tables) > 7:
         for i in range(2,len(tables)-4):
+            if len(tables[i])==1:
+                continue
             if i % 2 == 0:
                 team_a_scoreboards.append(tables[i])
             else:
                 team_b_scoreboards.append(tables[i])
+    #pdb.set_trace()
     return [team_a_scoreboards, team_b_scoreboards] #these tables matchup positionally with the map names coming from match_info,
 
 def get_primary_stats_page(url, bof):
@@ -301,6 +308,10 @@ def get_primary_stats_page(url, bof):
         demo_url = "NA"
         stats_url = "NA"
         team_a = team_b = "NA"
+        team_scoreboards = "NA"
+        print "something bad happened: ", url
+    if vetos is None:
+        vetos = []
 
     match_data = {
         'team_a_b': team_a_b['team_a_b'],
@@ -374,6 +385,7 @@ def scrape(page_to_scrape,urls_bof, pkl_save=False):
         time.sleep(5)
         print'match {0} done'.format(idx)
         if pkl_save and idx%5==0:
+            print 'last saved: ', url
             save_data(all_series, pkl_save)
     return all_series
 
@@ -419,22 +431,77 @@ def get_result_page_match_count(team_name, startDate, endDate, verbose = False):
 
 if __name__ == '__main__':
 
-    # year month day
-    # team_name = 'Immortals'
-    # startDate = '2016-10-10'
-    # endDate = '2017-10-10'
+    # team_name = 'NRG'
+    # startDate = '2016-10-01'
+    # endDate = '2017-10-13'
+    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    #
+    # save_data(series, filename)
+    #
+    # team_name = 'BIG'
+    # startDate = '2016-10-01'
+    # endDate = '2017-10-13'
+    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    #
+    # save_data(series, filename)
+    #
+    # team_name = 'CLG'
+    # startDate = '2016-10-01'
+    # endDate = '2017-10-13'
+    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    #
+    # save_data(series, filename)
 
-    # team_name = 'TyLoo'
-    # startDate = '2017-08-01'
-    # endDate = '2017-10-01'
+    # team_name = 'Cloud9'
+    # startDate = '2016-10-01'
+    # endDate = '2017-10-13'
+    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    #
+    # save_data(series, filename)
+    #
+    # team_name = 'HellRaisers'
+    # startDate = '2016-10-01'
+    # endDate = '2017-10-13'
+    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    #
+    # save_data(series, filename)
+    #
+    # team_name = 'mousesports'
+    # startDate = '2016-10-01'
+    # endDate = '2017-10-13'
+    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    #
+    # save_data(series, filename)
 
-    team_name = 'Cloud9'
-    startDate = '2017-10-06'
-    endDate = '2017-10-10'
 
-    get_result_page_match_count(team_name, startDate, endDate)
-    #series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save='Cloud9_10_16_to_10_17')
+    # team_name = 'Renegades'
+    # startDate = '2016-10-01'
+    # endDate = '2017-10-13'
+    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    # save_data(series, filename)
 
-    #save_data(series, 'Cloud9_10_16_to_10_17')
+    team_name = 'Renegades'
+    startDate = '2016-10-01'
+    endDate = '2017-07-22'
+    filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    save_data(series, filename)
 
+
+
+
+    # team_name = 'Tempo Storm'
+    # startDate = '2016-10-01'
+    # endDate = '2017-10-13'
+    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
+    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
+    #
+    # save_data(series, filename)
 

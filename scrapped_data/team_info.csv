@@ -1,80 +1,91 @@
 ,team_name,url,team_id
-0,TyLoo,/stats/teams/4863/TyLoo?startDate=2016-10-01&endDate=2017-10-01,4863
-1,Recca,/stats/teams/7344/Recca?startDate=2016-10-01&endDate=2017-10-01,7344
-2,Flash,/stats/teams/7660/Flash?startDate=2016-10-01&endDate=2017-10-01,7660
-3,ViCi,/stats/teams/7606/ViCi?startDate=2016-10-01&endDate=2017-10-01,7606
-4,VG.CyberZen,/stats/teams/6773/VG.CyberZen?startDate=2016-10-01&endDate=2017-10-01,6773
-5,Space Soldiers,/stats/teams/5929/Space%20Soldiers?startDate=2016-10-01&endDate=2017-10-01,5929
-6,SK,/stats/teams/6137/SK?startDate=2016-10-01&endDate=2017-10-01,6137
-7,Binary Dragons,/stats/teams/6669/Binary%20Dragons?startDate=2016-10-01&endDate=2017-10-01,6669
-8,eXtatus,/stats/teams/6745/eXtatus?startDate=2016-10-01&endDate=2017-10-01,6745
-9,Nexus,/stats/teams/7187/Nexus?startDate=2016-10-01&endDate=2017-10-01,7187
-10,Immortals,/stats/teams/7010/Immortals?startDate=2016-10-01&endDate=2017-10-01,7010
-11,mousesports,/stats/teams/4494/mousesports?startDate=2016-10-01&endDate=2017-10-01,4494
-12,Epsilon,/stats/teams/4688/Epsilon?startDate=2016-10-01&endDate=2017-10-01,4688
-13,Born Of Fire,/stats/teams/6502/Born%20Of%20Fire?startDate=2016-10-01&endDate=2017-10-01,6502
-14,Heroic,/stats/teams/7175/Heroic?startDate=2016-10-01&endDate=2017-10-01,7175
-15,Chiefs,/stats/teams/6010/Chiefs?startDate=2016-10-01&endDate=2017-10-01,6010
-16,TheMongolz,/stats/teams/6248/TheMongolz?startDate=2016-10-01&endDate=2017-10-01,6248
-17,B.O.O.T-d[S],/stats/teams/7567/B.O.O.T-d%5BS%5D?startDate=2016-10-01&endDate=2017-10-01,7567
-18,North,/stats/teams/7533/North?startDate=2016-10-01&endDate=2017-10-01,7533
-19,Misfits,/stats/teams/7557/Misfits?startDate=2016-10-01&endDate=2017-10-01,7557
-20,Cloud9,/stats/teams/5752/Cloud9?startDate=2016-10-01&endDate=2017-10-01,5752
-21,dignitas,/stats/teams/5422/dignitas?startDate=2016-10-01&endDate=2017-10-01,5422
-22,G2,/stats/teams/5995/G2?startDate=2016-10-01&endDate=2017-10-01,5995
-23,Rise Nation,/stats/teams/7924/Rise%20Nation?startDate=2016-10-01&endDate=2017-10-01,7924
-24,Singularity,/stats/teams/6978/Singularity?startDate=2016-10-01&endDate=2017-10-01,6978
-25,NRG,/stats/teams/6673/NRG?startDate=2016-10-01&endDate=2017-10-01,6673
-26,NiP,/stats/teams/4411/NiP?startDate=2016-10-01&endDate=2017-10-01,4411
-27,PENTA,/stats/teams/5395/PENTA?startDate=2016-10-01&endDate=2017-10-01,5395
-28,FaZe,/stats/teams/6667/FaZe?startDate=2016-10-01&endDate=2017-10-01,6667
-29,Signature,/stats/teams/6774/Signature?startDate=2016-10-01&endDate=2017-10-01,6774
-30,Rogue,/stats/teams/7157/Rogue?startDate=2016-10-01&endDate=2017-10-01,7157
-31,Gambit,/stats/teams/6651/Gambit?startDate=2016-10-01&endDate=2017-10-01,6651
-32,TeamOne,/stats/teams/6947/TeamOne?startDate=2016-10-01&endDate=2017-10-01,6947
-33,Outlaws,/stats/teams/7397/Outlaws?startDate=2016-10-01&endDate=2017-10-01,7397
-34,Denial,/stats/teams/4643/Denial?startDate=2016-10-01&endDate=2017-10-01,4643
-35,North Academy,/stats/teams/7713/North%20Academy?startDate=2016-10-01&endDate=2017-10-01,7713
-36,HellRaisers,/stats/teams/5310/HellRaisers?startDate=2016-10-01&endDate=2017-10-01,5310
-37,Renegades,/stats/teams/6211/Renegades?startDate=2016-10-01&endDate=2017-10-01,6211
-38,Immunity,/stats/teams/4791/Immunity?startDate=2016-10-01&endDate=2017-10-01,4791
-39,UYA,/stats/teams/7716/UYA?startDate=2016-10-01&endDate=2017-10-01,7716
-40,Splyce,/stats/teams/6301/Splyce?startDate=2016-10-01&endDate=2017-10-01,6301
-41,Red Reserve,/stats/teams/7613/Red%20Reserve?startDate=2016-10-01&endDate=2017-10-01,7613
-42,OpTic,/stats/teams/6615/OpTic?startDate=2016-10-01&endDate=2017-10-01,6615
-43,Kinguin,/stats/teams/6134/Kinguin?startDate=2016-10-01&endDate=2017-10-01,6134
-44,Tricked,/stats/teams/4602/Tricked?startDate=2016-10-01&endDate=2017-10-01,4602
-45,EnVyUs,/stats/teams/5991/EnVyUs?startDate=2016-10-01&endDate=2017-10-01,5991
-46,Astralis,/stats/teams/6665/Astralis?startDate=2016-10-01&endDate=2017-10-01,6665
-47,fnatic,/stats/teams/4991/fnatic?startDate=2016-10-01&endDate=2017-10-01,4991
-48,Athletico,/stats/teams/5680/Athletico?startDate=2016-10-01&endDate=2017-10-01,5680
-49,Legacy,/stats/teams/6468/Legacy?startDate=2016-10-01&endDate=2017-10-01,6468
-50,Luminosity,/stats/teams/6290/Luminosity?startDate=2016-10-01&endDate=2017-10-01,6290
-51,eSuba,/stats/teams/5412/eSuba?startDate=2016-10-01&endDate=2017-10-01,5412
-52,CLG,/stats/teams/5974/CLG?startDate=2016-10-01&endDate=2017-10-01,5974
-53,Liquid,/stats/teams/5973/Liquid?startDate=2016-10-01&endDate=2017-10-01,5973
-54,iGame.com,/stats/teams/7331/iGame.com?startDate=2016-10-01&endDate=2017-10-01,7331
-55,BIG,/stats/teams/7532/BIG?startDate=2016-10-01&endDate=2017-10-01,7532
-56,Tainted Minds,/stats/teams/7517/Tainted%20Minds?startDate=2016-10-01&endDate=2017-10-01,7517
-57,Tengri,/stats/teams/7145/Tengri?startDate=2016-10-01&endDate=2017-10-01,7145
-58,Bpro,/stats/teams/6762/Bpro?startDate=2016-10-01&endDate=2017-10-01,6762
-59,ALTERNATE aTTaX,/stats/teams/4501/ALTERNATE%20aTTaX?startDate=2016-10-01&endDate=2017-10-01,4501
-60,GODSENT,/stats/teams/6902/GODSENT?startDate=2016-10-01&endDate=2017-10-01,6902
-61,Natus Vincere,/stats/teams/4608/Natus%20Vincere?startDate=2016-10-01&endDate=2017-10-01,4608
-62,AVANT,/stats/teams/5293/AVANT?startDate=2016-10-01&endDate=2017-10-01,5293
-63,EPG,/stats/teams/7489/EPG?startDate=2016-10-01&endDate=2017-10-01,7489
-64,PRIDE,/stats/teams/6896/PRIDE?startDate=2016-10-01&endDate=2017-10-01,6896
-65,Quantum Bellator Fire,/stats/teams/7367/Quantum%20Bellator%20Fire?startDate=2016-10-01&endDate=2017-10-01,7367
-66,Playing Ducks,/stats/teams/7566/Playing%20Ducks?startDate=2016-10-01&endDate=2017-10-01,7566
-67,compLexity,/stats/teams/5005/compLexity?startDate=2016-10-01&endDate=2017-10-01,5005
-68,FlipSid3,/stats/teams/5988/FlipSid3?startDate=2016-10-01&endDate=2017-10-01,5988
-69,New4,/stats/teams/4865/New4?startDate=2016-10-01&endDate=2017-10-01,4865
-70,fnatic Academy,/stats/teams/7169/fnatic%20Academy?startDate=2016-10-01&endDate=2017-10-01,7169
-71,Spirit,/stats/teams/7020/Spirit?startDate=2016-10-01&endDate=2017-10-01,7020
-72,LDLC,/stats/teams/4674/LDLC?startDate=2016-10-01&endDate=2017-10-01,4674
-73,Dark Sided,/stats/teams/7212/Dark%20Sided?startDate=2016-10-01&endDate=2017-10-01,7212
-74,Fragsters,/stats/teams/6855/Fragsters?startDate=2016-10-01&endDate=2017-10-01,6855
-75,LGD,/stats/teams/6899/LGD?startDate=2016-10-01&endDate=2017-10-01,6899
-76,Virtus.pro,/stats/teams/5378/Virtus.pro?startDate=2016-10-01&endDate=2017-10-01,5378
-77,FIVE,/stats/teams/6908/FIVE?startDate=2016-10-01&endDate=2017-10-01,6908
-78,EMP,/stats/teams/7479/EMP?startDate=2016-10-01&endDate=2017-10-01,7479
+0,FaZe,/stats/teams/6667/FaZe?startDate=2017-09-01&endDate=2017-10-01,6667
+1,Flash,/stats/teams/7660/Flash?startDate=2017-09-01&endDate=2017-10-01,7660
+2,RESISTANCE,/stats/teams/7497/RESISTANCE?startDate=2017-09-01&endDate=2017-10-01,7497
+3,ViCi,/stats/teams/7606/ViCi?startDate=2017-09-01&endDate=2017-10-01,7606
+4,HAVU,/stats/teams/7865/HAVU?startDate=2017-09-01&endDate=2017-10-01,7865
+5,Recca,/stats/teams/7344/Recca?startDate=2017-09-01&endDate=2017-10-01,7344
+6,eXtatus,/stats/teams/6745/eXtatus?startDate=2017-09-01&endDate=2017-10-01,6745
+7,Kings,/stats/teams/8021/Kings?startDate=2017-09-01&endDate=2017-10-01,8021
+8,AGO,/stats/teams/8068/AGO?startDate=2017-09-01&endDate=2017-10-01,8068
+9,Cloud9,/stats/teams/5752/Cloud9?startDate=2017-09-01&endDate=2017-10-01,5752
+10,Japaleno,/stats/teams/7144/Japaleno?startDate=2017-09-01&endDate=2017-10-01,7144
+11,Misfits,/stats/teams/7557/Misfits?startDate=2017-09-01&endDate=2017-10-01,7557
+12,Tempo Storm,/stats/teams/6118/Tempo%20Storm?startDate=2017-09-01&endDate=2017-10-01,6118
+13,HellRaisers,/stats/teams/5310/HellRaisers?startDate=2017-09-01&endDate=2017-10-01,5310
+14,Beyond.Maple,/stats/teams/8262/Beyond.Maple?startDate=2017-09-01&endDate=2017-10-01,8262
+15,NRG,/stats/teams/6673/NRG?startDate=2017-09-01&endDate=2017-10-01,6673
+16,Space Soldiers,/stats/teams/5929/Space%20Soldiers?startDate=2017-09-01&endDate=2017-10-01,5929
+17,Nemiga,/stats/teams/7969/Nemiga?startDate=2017-09-01&endDate=2017-10-01,7969
+18,Immortals,/stats/teams/7010/Immortals?startDate=2017-09-01&endDate=2017-10-01,7010
+19,Tainted Minds,/stats/teams/7517/Tainted%20Minds?startDate=2017-09-01&endDate=2017-10-01,7517
+20,North,/stats/teams/7533/North?startDate=2017-09-01&endDate=2017-10-01,7533
+21,Chiefs,/stats/teams/6010/Chiefs?startDate=2017-09-01&endDate=2017-10-01,6010
+22,Torqued,/stats/teams/5906/Torqued?startDate=2017-09-01&endDate=2017-10-01,5906
+23,dignitas,/stats/teams/5422/dignitas?startDate=2017-09-01&endDate=2017-10-01,5422
+24,Berzerk,/stats/teams/5121/Berzerk?startDate=2017-09-01&endDate=2017-10-01,5121
+25,Grayhound,/stats/teams/8008/Grayhound?startDate=2017-09-01&endDate=2017-10-01,8008
+26,NASR,/stats/teams/8211/NASR?startDate=2017-09-01&endDate=2017-10-01,8211
+27,Signature,/stats/teams/6774/Signature?startDate=2017-09-01&endDate=2017-10-01,6774
+28,BIG,/stats/teams/7532/BIG?startDate=2017-09-01&endDate=2017-10-01,7532
+29,Heroic,/stats/teams/7175/Heroic?startDate=2017-09-01&endDate=2017-10-01,7175
+30,LGD,/stats/teams/6899/LGD?startDate=2017-09-01&endDate=2017-10-01,6899
+31,Eclipse,/stats/teams/7892/Eclipse?startDate=2017-09-01&endDate=2017-10-01,7892
+32,B.O.O.T-d[S],/stats/teams/7567/B.O.O.T-d%5BS%5D?startDate=2017-09-01&endDate=2017-10-01,7567
+33,MK,/stats/teams/6959/MK?startDate=2017-09-01&endDate=2017-10-01,6959
+34,TheMongolz,/stats/teams/6248/TheMongolz?startDate=2017-09-01&endDate=2017-10-01,6248
+35,Luminosity,/stats/teams/6290/Luminosity?startDate=2017-09-01&endDate=2017-10-01,6290
+36,DIVIZON,/stats/teams/7425/DIVIZON?startDate=2017-09-01&endDate=2017-10-01,7425
+37,Binary Dragons,/stats/teams/6669/Binary%20Dragons?startDate=2017-09-01&endDate=2017-10-01,6669
+38,New4,/stats/teams/4865/New4?startDate=2017-09-01&endDate=2017-10-01,4865
+39,AVANGAR,/stats/teams/8120/AVANGAR?startDate=2017-09-01&endDate=2017-10-01,8120
+40,ex-Outlaws,/stats/teams/8347/ex-Outlaws?startDate=2017-09-01&endDate=2017-10-01,8347
+41,OpTic,/stats/teams/6615/OpTic?startDate=2017-09-01&endDate=2017-10-01,6615
+42,MVP PK,/stats/teams/7354/MVP%20PK?startDate=2017-09-01&endDate=2017-10-01,7354
+43,mousesports,/stats/teams/4494/mousesports?startDate=2017-09-01&endDate=2017-10-01,4494
+44,Singularity,/stats/teams/6978/Singularity?startDate=2017-09-01&endDate=2017-10-01,6978
+45,CLG,/stats/teams/5974/CLG?startDate=2017-09-01&endDate=2017-10-01,5974
+46,SK,/stats/teams/6137/SK?startDate=2017-09-01&endDate=2017-10-01,6137
+47,Tricked,/stats/teams/4602/Tricked?startDate=2017-09-01&endDate=2017-10-01,4602
+48,Natus Vincere,/stats/teams/4608/Natus%20Vincere?startDate=2017-09-01&endDate=2017-10-01,4608
+49,GoodJob,/stats/teams/7820/GoodJob?startDate=2017-09-01&endDate=2017-10-01,7820
+50,Quantum Bellator Fire,/stats/teams/7367/Quantum%20Bellator%20Fire?startDate=2017-09-01&endDate=2017-10-01,7367
+51,pro100,/stats/teams/7898/pro100?startDate=2017-09-01&endDate=2017-10-01,7898
+52,AWTR,/stats/teams/4804/AWTR?startDate=2017-09-01&endDate=2017-10-01,4804
+53,5POWER,/stats/teams/7092/5POWER?startDate=2017-09-01&endDate=2017-10-01,7092
+54,Kinguin,/stats/teams/6134/Kinguin?startDate=2017-09-01&endDate=2017-10-01,6134
+55,LDLC,/stats/teams/4674/LDLC?startDate=2017-09-01&endDate=2017-10-01,4674
+56,Athletico,/stats/teams/5680/Athletico?startDate=2017-09-01&endDate=2017-10-01,5680
+57,NiP,/stats/teams/4411/NiP?startDate=2017-09-01&endDate=2017-10-01,4411
+58,Spirit,/stats/teams/7020/Spirit?startDate=2017-09-01&endDate=2017-10-01,7020
+59,fnatic,/stats/teams/4991/fnatic?startDate=2017-09-01&endDate=2017-10-01,4991
+60,Legacy,/stats/teams/6468/Legacy?startDate=2017-09-01&endDate=2017-10-01,6468
+61,EnVyUs Academy,/stats/teams/7856/EnVyUs%20Academy?startDate=2017-09-01&endDate=2017-10-01,7856
+62,Gambit,/stats/teams/6651/Gambit?startDate=2017-09-01&endDate=2017-10-01,6651
+63,Spirit Academy,/stats/teams/7900/Spirit%20Academy?startDate=2017-09-01&endDate=2017-10-01,7900
+64,North Academy,/stats/teams/7713/North%20Academy?startDate=2017-09-01&endDate=2017-10-01,7713
+65,Renegades,/stats/teams/6211/Renegades?startDate=2017-09-01&endDate=2017-10-01,6211
+66,EPG,/stats/teams/7489/EPG?startDate=2017-09-01&endDate=2017-10-01,7489
+67,FlipSid3,/stats/teams/5988/FlipSid3?startDate=2017-09-01&endDate=2017-10-01,5988
+68,Denial,/stats/teams/4643/Denial?startDate=2017-09-01&endDate=2017-10-01,4643
+69,Liquid,/stats/teams/5973/Liquid?startDate=2017-09-01&endDate=2017-10-01,5973
+70,ARES,/stats/teams/8242/ARES?startDate=2017-09-01&endDate=2017-10-01,8242
+71,Rise Nation,/stats/teams/7924/Rise%20Nation?startDate=2017-09-01&endDate=2017-10-01,7924
+72,compLexity,/stats/teams/5005/compLexity?startDate=2017-09-01&endDate=2017-10-01,5005
+73,MAX,/stats/teams/8118/MAX?startDate=2017-09-01&endDate=2017-10-01,8118
+74,Rogue,/stats/teams/7157/Rogue?startDate=2017-09-01&endDate=2017-10-01,7157
+75,GODSENT,/stats/teams/6902/GODSENT?startDate=2017-09-01&endDate=2017-10-01,6902
+76,EnVyUs,/stats/teams/5991/EnVyUs?startDate=2017-09-01&endDate=2017-10-01,5991
+77,Dark Sided,/stats/teams/7212/Dark%20Sided?startDate=2017-09-01&endDate=2017-10-01,7212
+78,PRIDE,/stats/teams/6896/PRIDE?startDate=2017-09-01&endDate=2017-10-01,6896
+79,Fragsters,/stats/teams/6855/Fragsters?startDate=2017-09-01&endDate=2017-10-01,6855
+80,SIN,/stats/teams/8321/SIN?startDate=2017-09-01&endDate=2017-10-01,8321
+81,undefined,/stats/teams/8064/undefined?startDate=2017-09-01&endDate=2017-10-01,8064
+82,forZe,/stats/teams/8135/forZe?startDate=2017-09-01&endDate=2017-10-01,8135
+83,Ghost,/stats/teams/7801/Ghost?startDate=2017-09-01&endDate=2017-10-01,7801
+84,FRENCH CANADIANS,/stats/teams/7616/FRENCH%20CANADIANS?startDate=2017-09-01&endDate=2017-10-01,7616
+85,Splyce,/stats/teams/6301/Splyce?startDate=2017-09-01&endDate=2017-10-01,6301
+86,Virtus.pro,/stats/teams/5378/Virtus.pro?startDate=2017-09-01&endDate=2017-10-01,5378
+87,WG,/stats/teams/8143/WG?startDate=2017-09-01&endDate=2017-10-01,8143
+88,Squared,/stats/teams/7669/Squared?startDate=2017-09-01&endDate=2017-10-01,7669
+89,AVANT,/stats/teams/5293/AVANT?startDate=2017-09-01&endDate=2017-10-01,5293
