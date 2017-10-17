@@ -46,7 +46,8 @@ def roster_match(big_data, team_name, cur_roster):
     #this returns a series, the index is the series id number and the value is the number of roster matches compared to thier current roster
     matches = pd.Series(name='num_matches')
     for idx, series in big_data.iteritems():
-
+        if len(series['scoreboards'][0]) == 0:
+            continue
         if series['scoreboards'][0][0].columns[0] == team_name:
             r = series['scoreboards'][0][0].loc[:, team_name].tolist()
         else:
@@ -100,8 +101,6 @@ def create_team_match_overview(big_data, team):
 
 
 def match_win_counts(match, team):
-    map_name = match.iloc[0, 0]
-    m_id = match.ix[1, 'match_id']
     t_rounds_played = match.loc[:, 'T'].value_counts()[team]
     t_wins = len(match.loc[(match.loc[:, 'T'] == team) & (match.winner == team), :])
     ct_rounds_played = match.CT.value_counts()[team]

@@ -4,3 +4,6 @@ Usersmckak/
 .ipynb_checkpoints/
 *.pyc
 *.pkl
+*.csv
+*.xlsx
+*.zip

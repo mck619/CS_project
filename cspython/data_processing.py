@@ -60,10 +60,12 @@ def create_winner_column(team_scores):
     raw_scores = raw_scores.loc[(raw_scores.loc[:, 0] != '') | (raw_scores.loc[:, 1] != ''), :]
 
     team_a = raw_scores.iloc[0, 0]
+
     team_b = raw_scores.iloc[0, 1]
-
     raw_scores = raw_scores.iloc[1:, :]
-
+    if team_a == team_b:
+        team_a += '_a'
+        team_b += '_b'
     winner_col = pd.DataFrame(columns=['winner', team_a + '_wins', team_b + '_wins'], index=raw_scores.index)
     w_a = 0
     w_b = 0
@@ -131,8 +133,11 @@ def series_overview_dataframe(all_series):
 def process_scrapped(all_series):
     overview = series_overview_dataframe(all_series)
     series_data = {}
-
+    bad_s_ids = []
     for s_id, s in zip(overview.id, all_series):
+        if s['team_a_b'][0] == s['team_a_b'][1]:
+            bad_s_ids.append(s_id)
+            continue
         match_overview = match_score_dataframe(s, s_id)
         map_pool = s['map_pool']
         vetos = s['vetos']
@@ -147,6 +152,7 @@ def process_scrapped(all_series):
             'vetos': vetos,
             'scoreboards': s['team_scoreboards'],
             'matches': matches}
+    overview = overview.loc[~overview.id.isin(bad_s_ids),:]
     return overview, series_data
 
 if __name__ == '__main__':
