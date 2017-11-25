@@ -3,6 +3,7 @@ import pandas as pd
 import uuid
 import sys
 sys.setrecursionlimit(15000)
+
 # Each element of list returned by scrape_series_data is a dictionary containing data 1 series played by the team. They are in reverse chornological order. The elements of each series dictionary are:
 # url:        the url on hltv of the Overview of the entire series
 # demo_url:   the url of the demo, hosted on hltv later
@@ -154,6 +155,45 @@ def process_scrapped(all_series):
             'matches': matches}
     overview = overview.loc[~overview.id.isin(bad_s_ids),:]
     return overview, series_data
+
+
+def change_team_name_dataset(name, name_to_replace, data_set):
+    data_set = change_name_vetos(name, name_to_replace, data_set)
+    data_set = change_name_team_a_b(name, name_to_replace, data_set)
+    data_set = change_name_team_scores(name, name_to_replace, data_set)
+    change_name_team_scoreboards(name, name_to_replace, data_set)
+    return data_set
+
+
+def change_name_vetos(name, name_to_replace, data_set):
+    for fl in range(0, len(data_set)):
+        for iv in range(0, len(data_set[fl]['vetos'])):
+            data_set[fl]['vetos'][iv] = data_set[fl]['vetos'][iv].replace(name_to_replace, name)
+    return data_set
+
+
+def change_name_team_a_b(name, name_to_replace, data_set):
+    for fl in range(0, len(data_set)):
+        for iv in range(0, len(data_set[fl]['team_a_b'])):
+            data_set[fl]['team_a_b'][iv] = data_set[fl]['team_a_b'][iv].replace(name_to_replace, name)
+    return data_set
+
+def change_name_team_scores(name, name_to_replace, data_set):
+    for fl in range(0, len(data_set)):
+        for iv in range(0, len(data_set[fl]['stats_data'])):
+            data_set[fl]['stats_data'][iv]['team_scores']['team_a'][0][0] = data_set[fl]['stats_data'][iv]['team_scores']['team_a'][0][0].replace(name_to_replace, name)
+            data_set[fl]['stats_data'][iv]['team_scores']['team_b'][0][0] = data_set[fl]['stats_data'][iv]['team_scores']['team_b'][0][0].replace(name_to_replace, name)
+    return data_set
+
+
+def change_name_team_scoreboards(name, name_to_replace, data_set):
+    for s in data_set:
+        for team_scoreboards in s['team_scoreboards']:
+            for sb in team_scoreboards:
+                if name_to_replace in sb.columns:
+                    new_cols = [name] + sb.columns.tolist()[1:]
+                    sb.columns = new_cols
+
 
 if __name__ == '__main__':
 

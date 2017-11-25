@@ -58,12 +58,12 @@ def get_matches_result_page_soup(params):
 
 def make_matches_url_loop(matches):
     urls = []
-    try:
-        results = matches[0].find_all("a", class_="a-reset")
-        urls += ['https://www.hltv.org' + result['href'] for result in results]
-    except:
-        results = matches[1].find_all("a", class_="a-reset")
-        urls += ['https://www.hltv.org' + result['href'] for result in results]
+    for m in matches:
+        try:
+            results = m.find_all("a", class_="a-reset")
+            urls += ['https://www.hltv.org' + result['href'] for result in results]
+        except:
+            pass
     return urls
 
 
@@ -189,9 +189,13 @@ def get_overview_data(url):
     soup = get_soup(url)
     match_time = get_overview_round_match_time(soup)
     round_history = soup.find_all("div", class_="round-history-team-row")
-    team_scores = get_overview_round_for_loop(round_history, get_overview_round_scores)
-    team_endings = get_overview_round_for_loop(round_history, get_overview_round_endings)
-
+    if len(round_history)>0:
+        team_scores = get_overview_round_for_loop(round_history, get_overview_round_scores)
+        team_endings = get_overview_round_for_loop(round_history, get_overview_round_endings)
+    else:
+        team_scores = 'no round history'
+        team_endings = 'no round history'
+        print 'no round history'
     return {
         'match_time': match_time,
         'team_scores': team_scores,
@@ -258,17 +262,27 @@ def get_primary_stats_bof(bof, primary_parser,soup):
         bof_sum = 1
     match_info = []
     for i in range(0,bof_sum):
-        match_info.append(primary_parser(soup, i))
+        result = primary_parser(soup, i)
+        if result is None:
+            continue
+        else:
+            match_info.append(result)
     return match_info
 
 def get_primary_stats_map_name(soup, i):
-    name = soup.find_all("div", class_="mapname")[i].text
+    try:
+        name = soup.find_all("div", class_="mapname")[i].text
+    except:
+        return None
     return name
 
 def get_primary_stats_map_scores(soup, i):
     team_info = soup.find_all("div", class_="flexbox fix-half-width-margin maps")[0].find_all("div", class_="results")
-    team_a_score = team_info[i].find_all("span")[0].text
-    team_b_score = team_info[i].find_all("span")[2].text
+    try:
+        team_a_score = team_info[i].find_all("span")[0].text
+        team_b_score = team_info[i].find_all("span")[2].text
+    except:
+        return None
     return {
         'team_scores' : [team_a_score, team_b_score]
     }
@@ -363,6 +377,7 @@ def parse_all_match_data(url, bof):
     ## this stuff should all be moved to another function which aggregates all sites
 
     match_data = get_primary_stats_page(url,bof)
+    print bof
     stats_data = bof_testing(bof, match_data['stats_url'], get_overview_data)
     if isinstance(stats_data, dict):
         match_data['stats_data'] = [stats_data]
@@ -378,7 +393,7 @@ def parse_all_match_data(url, bof):
     return match_data
 
 
-def scrape_series_data(startDate, endDate, team_name=False,  verbose=False, pkl_save=False, teamID=False):
+def scrape_series_data(startDate, endDate, team_name=False,  verbose=False, pkl_save=False, teamID=False, offset=0):
     global VERBOSE_URL
     VERBOSE_URL = verbose
     if not teamID:
@@ -392,21 +407,29 @@ def scrape_series_data(startDate, endDate, team_name=False,  verbose=False, pkl_
         'endDate':endDate
      }
     urls_bof = get_matches_result_page_urls_bof(params)
-    all_series = scrape(parse_all_match_data,urls_bof, pkl_save)
-    return all_series
+    urls_bof['urls'] = urls_bof['urls'][offset:]
+    urls_bof['bof'] = urls_bof['bof'][offset:]
+    all_series, bad_matches = scrape(parse_all_match_data,urls_bof, pkl_save)
+    return all_series, bad_matches
 
 def scrape(page_to_scrape,urls_bof, pkl_save=False):
     all_series = []
+    bad_matches= []
     urls = urls_bof['urls']
     bof = urls_bof['bof']
     for idx, url in enumerate(urls):
-        all_series.append(page_to_scrape(url,bof[idx]))
-        time.sleep(5)
-        print'match {0} done'.format(idx)
-        if pkl_save and idx%5==0:
-            print 'last saved: ', url
-            save_data(all_series, pkl_save)
-    return all_series
+        try:
+            all_series.append(page_to_scrape(url,bof[idx]))
+            time.sleep(5)
+            print'match {0} done'.format(idx)
+            if pkl_save and idx%5==0:
+                print 'last saved: ', url
+                save_data(all_series, pkl_save)
+        except:
+            print 'bad match:', url
+            bad_matches.append(url)
+
+    return all_series, bad_matches
 
 
 def save_data(matches, name):
