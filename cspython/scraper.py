@@ -94,7 +94,7 @@ def get_matches_result_page_urls_bof(params):
 
         urls += make_matches_url_loop(matches)
         if params['offset'] == 0 and not params ['teamID']:
-            bof += make_matches_bof_loop(matches[1])
+            bof += make_matches_bof_loop(matches[len(matches)-1])
         else:
             bof += make_matches_bof_loop(matches)
         if len(urls) % 100 != 0:
@@ -377,7 +377,6 @@ def parse_all_match_data(url, bof):
     ## this stuff should all be moved to another function which aggregates all sites
 
     match_data = get_primary_stats_page(url,bof)
-    print bof
     stats_data = bof_testing(bof, match_data['stats_url'], get_overview_data)
     if isinstance(stats_data, dict):
         match_data['stats_data'] = [stats_data]
