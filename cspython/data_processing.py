@@ -2,6 +2,8 @@ import cspython.scraper
 import pandas as pd
 import uuid
 import sys
+import pdb
+import cPickle as pkl
 sys.setrecursionlimit(15000)
 
 # Each element of list returned by scrape_series_data is a dictionary containing data 1 series played by the team. They are in reverse chornological order. The elements of each series dictionary are:
@@ -118,6 +120,7 @@ def series_overview_dataframe(all_series):
                                                 'team_b', 'url', 'stats_url',
                                                 'demo_url'])
     for s in all_series:
+        pdb.set_trace()
         demo_url = s['demo_url']
         stats_url = s['stats_url']
         url = s['url']
@@ -152,7 +155,9 @@ def process_scrapped(all_series):
             'map_pool': map_pool,
             'vetos': vetos,
             'scoreboards': s['team_scoreboards'],
-            'matches': matches}
+            'matches': matches,
+            'match_data': s['match_data']
+        }
     overview = overview.loc[~overview.id.isin(bad_s_ids),:]
     return overview, series_data
 
@@ -196,7 +201,14 @@ def change_name_team_scoreboards(name, name_to_replace, data_set):
 
 
 if __name__ == '__main__':
-
-    series = cspython.scraper.scrape_series_data('NRG', '2017-10-01', '2017-10-03', verbose=False)
+    #series, bad_series = cspython.scraper.scrape_series_data('2018-01-04', '2018-01-04', verbose=False)
+    # with open('test.pkl', 'wb') as f:
+    #     pkl.dump(series, f)
+    #
+    with open('test.pkl', 'rb') as f:
+        scraper_results = pkl.load(f)
+    series = scraper_results[0]
     overview, series_data = process_scrapped(series)
+    with open('series_data.pkl', 'wb') as f:
+        pkl.dump(series_data, f)
     print overview
