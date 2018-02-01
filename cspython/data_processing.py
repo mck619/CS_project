@@ -120,7 +120,6 @@ def series_overview_dataframe(all_series):
                                                 'team_b', 'url', 'stats_url',
                                                 'demo_url'])
     for s in all_series:
-        pdb.set_trace()
         demo_url = s['demo_url']
         stats_url = s['stats_url']
         url = s['url']
@@ -207,7 +206,7 @@ if __name__ == '__main__':
     #
     with open('test.pkl', 'rb') as f:
         scraper_results = pkl.load(f)
-    series = scraper_results[0]
+    series = scraper_results
     overview, series_data = process_scrapped(series)
     with open('series_data.pkl', 'wb') as f:
         pkl.dump(series_data, f)
