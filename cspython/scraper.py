@@ -5,9 +5,11 @@ import requests
 import time
 import datetime
 import urlparse
+import argparse
 import os, sys
 import cPickle as pkl
 import pdb
+import random
 sys.setrecursionlimit(15000)
 
 
@@ -31,7 +33,7 @@ def get_soup(url):
     soup._url = url
     if VERBOSE_URL:
         print soup._url
-    time.sleep(5)
+    time.sleep(15+ random.randint(0,5))
     return soup
 
 
@@ -40,17 +42,25 @@ def get_tables(url, verbose=False):
     r = requests.get(url, headers=hdr)
     if VERBOSE_URL:
         print url
-    time.sleep(5)
+    time.sleep(15+ random.randint(0,5))
     tables = pd.read_html(r.text, header=0)
     return tables
-
-def get_matches_result_page_soup(params):
-    if not params['teamID']:
-        match_page = "https://www.hltv.org/results?offset={offset}&content=demo&startDate={" \
-                     "startDate}&endDate={endDate}".format(**params)
+    
+def add_offset_to_match_page_url(url, offset):
+    match_page = url
+    match_page = match_page.split('results?')[0] + "results?offset=" + str(offset) + "&" + match_page.split('results?')[1]
+    return match_page
+    
+def get_matches_result_page_soup(params, url=None):
+    if url is not None:
+        match_page = add_offset_to_match_page_url(url, params['offset'])
     else:
-        match_page = "https://www.hltv.org/results?offset={offset}&content=demo&team={teamID}&startDate={" \
-                 "startDate}&endDate={endDate}".format(**params)
+        if not params['teamID']:
+            match_page = "https://www.hltv.org/results?offset={offset}&content=demo&startDate={" \
+                         "startDate}&endDate={endDate}".format(**params)
+        else:
+            match_page = "https://www.hltv.org/results?offset={offset}&content=demo&team={teamID}&startDate={" \
+                     "startDate}&endDate={endDate}".format(**params)
 
     soup = get_soup(match_page)
     matches_soup = soup.find_all("div", class_='results-all')
@@ -82,18 +92,20 @@ def make_matches_bof_loop(matches):
         bof += [result.text for result in results]
     return bof
 
-def get_matches_result_page_urls_bof(params):
+def get_matches_result_page_urls_bof(params=None, url=None):
     done = False
+    if params is None:
+        params = {}
     params['offset'] = 0
     urls = []
     bof = []
     while not done:
-        matches = get_matches_result_page_soup(params)
+        matches = get_matches_result_page_soup(params, url)
         if len(matches) == 0:
             break
 
         urls += make_matches_url_loop(matches)
-        if params['offset'] == 0 and not params ['teamID']:
+        if params['offset'] == 0 and ('teamID' not in params or not params ['teamID']):
             bof += make_matches_bof_loop(matches[len(matches)-1])
         else:
             bof += make_matches_bof_loop(matches)
@@ -392,20 +404,26 @@ def parse_all_match_data(url, bof):
     return match_data
 
 
-def scrape_series_data(startDate, endDate, team_name=False,  verbose=False, pkl_save=False, teamID=False, offset=0):
+def scrape_series_data(match_search_url = None, startDate=None, endDate=None, team_name=False,  verbose=False, pkl_save=False, teamID=False, offset=0):
     global VERBOSE_URL
     VERBOSE_URL = verbose
-    if not teamID:
-        if not team_name:
-            print "date based search"
-        else:
-            teamID = get_teamID(team_name)
-    params = {
-        'teamID':teamID,
-        'startDate':startDate,
-        'endDate':endDate
-     }
-    urls_bof = get_matches_result_page_urls_bof(params)
+    offset = int(offset)
+    print offset
+    print type(offset)
+    if match_search_url is not None:
+        urls_bof = get_matches_result_page_urls_bof(url=match_search_url)
+    else:
+        if not teamID:
+            if not team_name:
+                print "date based search"
+            else:
+                teamID = get_teamID(team_name)
+        params = {
+            'teamID':teamID,
+            'startDate':startDate,
+            'endDate':endDate
+         }
+        urls_bof = get_matches_result_page_urls_bof(params)
     urls_bof['urls'] = urls_bof['urls'][offset:]
     urls_bof['bof'] = urls_bof['bof'][offset:]
     all_series, bad_matches = scrape(parse_all_match_data,urls_bof, pkl_save)
@@ -473,102 +491,18 @@ def get_result_page_match_count(team_name, startDate, endDate, verbose = False):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-startDate", help="date to start scraping", default=None)
+    parser.add_argument("-endDate", help="date to stop scraping", default=None)
+    parser.add_argument("-team", help="team name", default=False)
+    parser.add_argument("-pkl_save", help="if addded, will save a pickle every 5 matches", default=False)
+    parser.add_argument("-offset", help="offset from url", default=False)
+    parser.add_argument("--verbose", action="store_true", help="run scraper in verbose", default=False)
+    parser.add_argument("-url", help="will use a url from a query on hltv instead of search parameters", default=None)
+    args = parser.parse_args()
 
-
-    startDate = '2017-11-12'
-    endDate = '2017-11-14'
-    scrape_series_data(startDate, endDate)
-
-
-    # team_name = 'NRG'
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
-    #
-    # save_data(series, filename)
-    #
-    # team_name = 'BIG'
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
-    #
-    # save_data(series, filename)
-    #
-    # team_name = 'CLG'
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
-    #
-    # save_data(series, filename)
-
-    # team_name = 'Cloud9'
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
-    #
-    # save_data(series, filename)
-    #
-    # team_name = 'HellRaisers'
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
-    #
-    # save_data(series, filename)
-    #
-    # team_name = 'mousesports'
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
-    #
-    # save_data(series, filename)
-
-
-    # team_name = 'Renegades'
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
-    # save_data(series, filename)
-
-    # team_name = 'Renegades'
-    # startDate = '2016-10-01'
-    # endDate = '2017-07-22'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename)
-    # save_data(series, filename)
-
-
-
-
-    # team_name = 'Tempo-Storm-b'
-    # teamID = 8221
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename, teamID=teamID)
-    #
-    # save_data(series, filename)
-
-    # team_name = 'paiN'
-    # teamID = 8079
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename, teamID=teamID)
-    #
-    # save_data(series, filename)
-    #
-    # team_name = 'ex-paiN'
-    # teamID = 4773
-    # startDate = '2016-10-01'
-    # endDate = '2017-10-13'
-    # filename = team_name + '_' + startDate + '_to_' + endDate + '.pkl'
-    # series = scrape_series_data(team_name, startDate, endDate, verbose=True, pkl_save=filename, teamID=teamID)
-    #
-    # save_data(series, filename)
+    startDate = args.startDate
+    endDate = args.endDate
+    scrape_series_data(startDate=startDate, endDate=endDate, verbose=args.verbose, team_name=args.team, pkl_save=args.pkl_save, match_search_url=args.url, offset=args.offset)
+    
+    
