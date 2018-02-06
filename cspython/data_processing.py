@@ -120,7 +120,7 @@ def series_overview_dataframe(all_series):
                                                 'team_b', 'url', 'stats_url',
                                                 'demo_url'])
     for s in all_series:
-        pdb.set_trace()
+        #pdb.set_trace()
         demo_url = s['demo_url']
         stats_url = s['stats_url']
         url = s['url']
@@ -201,14 +201,16 @@ def change_name_team_scoreboards(name, name_to_replace, data_set):
 
 
 if __name__ == '__main__':
-    #series, bad_series = cspython.scraper.scrape_series_data('2018-01-04', '2018-01-04', verbose=False)
-    # with open('test.pkl', 'wb') as f:
-    #     pkl.dump(series, f)
-    #
-    with open('test.pkl', 'rb') as f:
+    # scraper_results = cspython.scraper.scrape_series_data('2018-01-27', '2018-01-27', verbose=False)
+    # with open('test1_27.pkl', 'wb') as f:
+    #      pkl.dump(scraper_results, f)
+    with open('test1_27.pkl', 'rb') as f:
         scraper_results = pkl.load(f)
-    series = scraper_results[0]
+    print len(scraper_results)
+    print type(scraper_results)
+    series = scraper_results
     overview, series_data = process_scrapped(series)
     with open('series_data.pkl', 'wb') as f:
         pkl.dump(series_data, f)
     print overview
+
