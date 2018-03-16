@@ -145,15 +145,144 @@ def create_historic_data(data): # all the functions  that are creating match bas
     data = create_avdamage_map_his(data)
     data = create_faw_map_his(data, col_list)
     return data
+    
+def count_map_win_loss_total(df): #this function assumes the df contains only rows from one team
+    team_name = df.player_team_name.iloc[0]
+    maps = df.map.unique()
+    
+    for map_name in maps:
+        df[map_name + "_win_his"] = np.nan
+        df[map_name + "_loss_his"] = np.nan
+        df[map_name + "_total_played"] = np.nan
+        
+    grouped = df.groupby('map')
+    for map_name, map_df in grouped:
+        played = pd.Series(range(1,len(map_df)+1), index=map_df.index)
+        won = (map_df.winner_of_match == team_name).expanding(1).sum()
+        lost = played - won
+        
+        df.loc[map_df.index, map_name + '_total_played'] = played
+        df.loc[map_df.index, map_name + '_win_his'] = won
+        df.loc[map_df.index, map_name + '_loss_his'] = lost
+        
+        df.loc[:, map_name + '_total_played'].fillna(method='ffill', inplace=True)
+        df.loc[:, map_name + '_win_his'].fillna(method='ffill', inplace=True)
+        df.loc[:, map_name + '_loss_his'].fillna(method='ffill', inplace=True)
+        
+        df.loc[:, map_name + '_total_played'].fillna(0, inplace=True)
+        df.loc[:, map_name + '_win_his'].fillna(0, inplace=True)
+        df.loc[:, map_name + '_loss_his'].fillna(0, inplace=True)
+        
+    return df
 
+
+def create_map_win_loss_and_per_his_columns(data):  # team total win and loses on map with total times played on map !4!
+    data.sort_values('date', inplace=True)
+    data.index = range(len(data))
+    original_col_order = data.columns.tolist()
+    data = data.groupby('player_team_name').apply(count_map_win_loss_total)
+    new_cols = data.columns[~data.columns.isin(original_col_order)].tolist()
+    data = data.loc[:, original_col_order + new_cols]
+    for map_name in data.map.unique():
+        data.loc[:, map_name + '_win_perc_map'] = data.loc[:, map_name + '_win_his']/data.loc[:, map_name + '_total_played']
+    return data
+    
+def create_rounds_won_rounds_loss_columns(data):
+    team_A_rounds = data.loc[data.player_team_name == data.team_A_name, 'team_A_score']
+    team_B_rounds = data.loc[data.player_team_name == data.team_B_name, 'team_B_score']
+    rounds_won = pd.concat([team_A_rounds, team_B_rounds])
+    data.loc[:, 'rounds_won'] = rounds_won
+    
+    team_A_rounds = data.loc[data.player_team_name == data.team_B_name, 'team_A_score']
+    team_B_rounds = data.loc[data.player_team_name == data.team_A_name, 'team_B_score']
+    rounds_lost = pd.concat([team_A_rounds, team_B_rounds])
+    data.loc[:, 'rounds_lost'] = rounds_lost
+    
+    return data
+
+#running total of rounds won/lost vs opponent
+
+def count_rounds_won_vs_opponent(df): #parsing a df of 1 team
+    grouped = df.groupby('player_team_opponent')
+    for opponent, opponent_df in grouped:
+        won_his = opponent_df.loc[:, 'rounds_won'].expanding(1).sum()
+        loss_his = opponent_df.loc[:,'rounds_lost'].expanding(1).sum()
+        
+        df.loc[opponent_df.index, 'rounds_won_vs_'+opponent] = won_his
+        df.loc[opponent_df.index, 'rounds_loss_vs_'+opponent] = loss_his
+        
+        df.loc[:, 'rounds_won_vs_'+opponent].fillna(method='ffill', inplace=True)
+        df.loc[:, 'rounds_loss_vs_'+opponent].fillna(method='ffill', inplace=True)
+        
+        df.loc[:, 'rounds_won_vs_'+opponent].fillna(0, inplace=True)
+        df.loc[:, 'rounds_loss_vs_'+opponent].fillna(0, inplace=True)
+    return df
+
+
+def create_rounds_won_and_lost_vs_team_his(data): #applied to entire dataset
+    data.sort_values('date', inplace = True)
+    data = data.groupby('player_team_name').apply(count_rounds_won_vs_opponent)
+    return data
+
+
+def count_rounds_won_vs_opponent_on_map(df): # parsing a df of 1 team
+    opponent = df.player_team_opponent.values[0]
+    map_name = df.map.values[0]
+
+    won_his = df.loc[:, 'rounds_won'].expanding(1).sum()
+    loss_his = df.loc[:,'rounds_lost'].expanding(1).sum()
+        
+    df.loc[:, 'rounds_won_vs_'+opponent+'_on_'+map_name] = won_his
+    df.loc[:, 'rounds_loss_vs_'+opponent+'_on_'+map_name] = loss_his
+
+    return df
+
+
+def create_rounds_won_and_lost_vs_team_by_map_his(data):
+    data.sort_values('date', inplace = True)
+    data = data.groupby(['player_team_name', 'player_team_opponent', 'map']).apply(count_rounds_won_vs_opponent_on_map)
+    
+    for team, opponent, map_name in itertools.product(data.player_team_name.unique(), data.player_team_opponent.unique(), data.map.unique()):
+        if 'rounds_won_vs_'+opponent+'_on_'+map_name not in data.columns:
+            data.loc[:,'rounds_won_vs_'+opponent+'_on_'+map_name] = 0
+            data.loc[:,'rounds_loss_vs_'+opponent+'_on_'+map_name] = 0
+            continue
+        col = data.loc[data.player_team_name == team, 'rounds_won_vs_'+opponent+'_on_'+map_name].fillna(method='ffill')
+        data.loc[data.player_team_name == team, 'rounds_won_vs_'+opponent+'_on_'+map_name] = col
+        col = data.loc[data.player_team_name == team, 'rounds_loss_vs_'+opponent+'_on_'+map_name].fillna(method='ffill')
+        data.loc[data.player_team_name == team, 'rounds_loss_vs_'+opponent+'_on_'+map_name] = col
+        col = data.loc[data.player_team_name == team, 'rounds_won_vs_'+opponent+'_on_'+map_name].fillna(0)
+        data.loc[data.player_team_name == team, 'rounds_won_vs_'+opponent+'_on_'+map_name] = col
+        col = data.loc[data.player_team_name == team, 'rounds_loss_vs_'+opponent+'_on_'+map_name].fillna(0)
+        data.loc[data.player_team_name == team, 'rounds_loss_vs_'+opponent+'_on_'+map_name] = col
+    return data
+    
+    
+def create_round_his_cols(data):
+    original_col_order = data.columns.tolist()
+    data = create_rounds_won_rounds_loss_columns(data)
+    data = create_rounds_won_and_lost_vs_team_his(data)
+    data = create_rounds_won_and_lost_vs_team_by_map_his(data)
+    new_cols = data.columns[~data.columns.isin(original_col_order)].tolist()
+    data = data.loc[:, original_col_order + new_cols]
+    return data
+    
+    
 def match_dataset_creation(data):  #creates player based columns, then groups to allow for historic match based columns
     data = player_based_column_making(data)
     data = apply_nummeric_and_group_as_match(data)
-    data = create_historic_data(data)
     return data
-
+    
+def aggregate_data_over_time(data): #adds aggregate columns
+    data = create_historic_data(data)
+    data = create_map_win_loss_and_per_his_columns(data)
+    data = create_round_his_cols(data)
+    return data
+    
+    
 if __name__ == '__main__':
-    #data = combine_dfs(overview, big_data)
-    #data = match_dataset_creation(data)
+    data = combine_dfs(overview, big_data)
+    data = match_dataset_creation(data)
+    data = aggregate_data_over_time(data)
 
     pass
