@@ -390,7 +390,7 @@ def query_series_urls(params, url=None):
 
 @log_exception(logger, verbose_exception_logging=VERBOSE_EXCEPTION_LOGGING)
 @add_kwargs_note_to_exception('url')
-def get_all_series_urls(params, url=None): # scrapes all individual series url from a query on hltv, called by query_series_urls
+def get_all_series_urls(params=None, url=None): # scrapes all individual series url from a query on hltv, called by query_series_urls
     if url is not None:
         match_page = add_offset_to_match_page_url(url, params['offset'])
     else:
