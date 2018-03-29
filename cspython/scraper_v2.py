@@ -63,7 +63,7 @@ def get_urls_from_column_divs(url):
     :return: list of urls, 1 for each match
     """
     try:
-        soup = get_soup(url)
+        soup = get_soup(url=url)
         links = []
         bof_site_columns = soup.find_all("div", class_="columns")
         for bof_site in bof_site_columns:
@@ -100,21 +100,21 @@ def scrape_series_data(url):
 @add_kwargs_note_to_exception('url')
 def get_all_match_detailed_stats(url, num_matches):
     if num_matches == 1:
-        return [get_detailed_stats_for_match(url)]
+        return [get_detailed_stats_for_match(url=url)]
     else:
-        match_stats_urls = get_urls_from_column_divs(url)
+        match_stats_urls = get_urls_from_column_divs(url=url)
         detailed_match_stats = []
     for i in range(num_matches):
-        detailed_match_stats.append(get_detailed_stats_for_match(match_stats_urls[i]))
+        detailed_match_stats.append(get_detailed_stats_for_match(url=match_stats_urls[i]))
 
     return detailed_match_stats
 
 @log_exception(logger, verbose_exception_logging=VERBOSE_EXCEPTION_LOGGING)
 @add_kwargs_note_to_exception('url')
 def get_detailed_stats_for_match(url):
-    soup = get_soup(url)
-    detailed_stats = {'match_time':  get_match_time(soup)}
-    detailed_stats.update(get_round_stats(soup))
+    soup = get_soup(url=url)
+    detailed_stats = {'match_time':  get_match_time(soup=soup)}
+    detailed_stats.update(get_round_stats(soup=soup))
 
     return detailed_stats
 
@@ -170,19 +170,19 @@ def get_base_name_from_url(tround):
 @add_kwargs_note_to_exception('url')
 def get_all_match_performance(url, num_matches):
     if num_matches == 1:
-        return [get_performance_data(url)]
+        return [get_performance_data(url=url)]
     else:
-        match_performance_urls = get_urls_from_column_divs(url)
+        match_performance_urls = get_urls_from_column_divs(url=url)
         match_performance_stats = []
     for i in range(num_matches):
-        match_performance_stats.append(get_detailed_stats_for_match(match_performance_urls[i]))
+        match_performance_stats.append(get_performance_data(url=match_performance_urls[i]))
 
     return match_performance_stats
 
 @log_exception(logger, verbose_exception_logging=VERBOSE_EXCEPTION_LOGGING)
 @add_kwargs_note_to_exception('url')
 def get_performance_data(url):
-    tables = get_tables(url)
+    tables = get_tables(url=url)
     total_team_kda = tables[0]
     who_kill_who = tables[1]
     first_kills = tables[2]
@@ -330,9 +330,9 @@ def get_map_pool_url(soup):
 @log_exception(logger, verbose_exception_logging=VERBOSE_EXCEPTION_LOGGING)
 @add_soup_url_to_exception()
 def get_map_pool(soup):
-    url = get_map_pool_url(soup)
+    url = get_map_pool_url(soup=soup)
     if url:
-        pool_page_soup = get_soup(url)
+        pool_page_soup = get_soup(url=url)
         all_maps = pool_page_soup.find_all('div', class_='map-pool-map-name')
         pool = [map.text for map in all_maps]
         return pool
@@ -371,8 +371,10 @@ def add_offset_to_match_page_url(url, offset):
 
 @log_exception(logger, verbose_exception_logging=VERBOSE_EXCEPTION_LOGGING)
 @add_kwargs_note_to_exception('url')
-def query_series_urls(params, url=None):
+def query_series_urls(params=None, url=None):
     done = False
+    if params is None:
+        params = {}
     params['offset'] = 0
     series_urls = []
     while not done:
@@ -392,7 +394,7 @@ def query_series_urls(params, url=None):
 @add_kwargs_note_to_exception('url')
 def get_all_series_urls(params=None, url=None): # scrapes all individual series url from a query on hltv, called by query_series_urls
     if url is not None:
-        match_page = add_offset_to_match_page_url(url, params['offset'])
+        match_page = add_offset_to_match_page_url(url=url, offset=params['offset'])
     else:
         if not params['teamID']:
             match_page = "https://www.hltv.org/results?offset={offset}&content=demo&startDate={" \
@@ -400,7 +402,7 @@ def get_all_series_urls(params=None, url=None): # scrapes all individual series 
         else:
             match_page = "https://www.hltv.org/results?offset={offset}&content=demo&team={teamID}&startDate={" \
                          "startDate}&endDate={endDate}".format(**params)
-    soup = get_soup(match_page)
+    soup = get_soup(url=match_page)
     matches_soup = soup.find_all("div", class_='results-all')
 
     urls = []
