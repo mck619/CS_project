@@ -155,7 +155,7 @@ def process_scrapped(all_series):
             'vetos': vetos,
             'scoreboards': s['team_scoreboards'],
             'matches': matches,
-            'match_data': s['match_data']
+            'preformance_data': s['preformance_data']
         }
     overview = overview.loc[~overview.id.isin(bad_s_ids),:]
     return overview, series_data

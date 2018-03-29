@@ -12,6 +12,7 @@ import pdb
 import random
 sys.setrecursionlimit(15000)
 
+VERBOSE_URL = False
 
 class modifiedSoup(BeautifulSoup):
     def __init__(self, *args, **kwargs):
@@ -25,7 +26,7 @@ def get_teamID(team_name):
     return teamID
 
 
-def get_soup(url):
+def get_soup(url, sleep=True):
     hdr = {'User-Agent': 'Mozilla/5.0'}
     req = urllib2.Request(url,headers=hdr)
     page = urllib2.urlopen(req)
@@ -33,7 +34,8 @@ def get_soup(url):
     soup._url = url
     if VERBOSE_URL:
         print soup._url
-    time.sleep(15+ random.randint(0,5))
+    if sleep:
+        time.sleep(15+ random.randint(0,5))
     return soup
 
 
@@ -120,7 +122,6 @@ def get_matches_result_page_urls_bof(params=None, url=None):
         'bof' : bof
     }
 
-
 def get_urls_from_columns(url):
     soup = get_soup(url)
     links = []
@@ -130,7 +131,6 @@ def get_urls_from_columns(url):
         for link in bof_site.find_all('a'):
             links.append("https://www.hltv.org" + str(link.get("href")))
     return links
-
 
 # currently works with get_performance_data, get_overview_data, get_heat_maps
 def bof_testing(bof, url, type_of_parse):  # CANNOT BE USED WITH BASIC STATS PAGE PRIMARY_STATS_PAGE
@@ -266,7 +266,9 @@ def get_primary_stats_page_tname(soup):
     }
 
 def get_primary_stats_bof(bof, primary_parser,soup):
+    pdb.set_trace()
     bof_sum = sum_digits_in_string(bof)
+    pdb.set_trace()
     if bof_sum == 1:
         match_info = ['Forfeit', bof]
         return match_info
@@ -442,6 +444,7 @@ def scrape(page_to_scrape,urls_bof, pkl_save=False):
             if pkl_save and idx%5==0:
                 print 'last saved: ', url
                 save_data(all_series, pkl_save)
+                save_data(bad_matches, pkl_save + '.bad_matches')
         except:
             print 'bad match:', url
             bad_matches.append(url)
@@ -491,18 +494,22 @@ def get_result_page_match_count(team_name, startDate, endDate, verbose = False):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-startDate", help="date to start scraping", default=None)
-    parser.add_argument("-endDate", help="date to stop scraping", default=None)
-    parser.add_argument("-team", help="team name", default=False)
-    parser.add_argument("-pkl_save", help="if addded, will save a pickle every 5 matches", default=False)
-    parser.add_argument("-offset", help="offset from url", default=False)
-    parser.add_argument("--verbose", action="store_true", help="run scraper in verbose", default=False)
-    parser.add_argument("-url", help="will use a url from a query on hltv instead of search parameters", default=None)
-    args = parser.parse_args()
 
-    startDate = args.startDate
-    endDate = args.endDate
-    scrape_series_data(startDate=startDate, endDate=endDate, verbose=args.verbose, team_name=args.team, pkl_save=args.pkl_save, match_search_url=args.url, offset=args.offset)
-    
+    soup = get_soup('https://www.hltv.org/matches/2319511/liquid-vs-sk-esl-pro-league-season-7-north-america', sleep=False)
+
+
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("-startDate", help="date to start scraping", default=None)
+    # parser.add_argument("-endDate", help="date to stop scraping", default=None)
+    # parser.add_argument("-team", help="team name", default=False)
+    # parser.add_argument("-pkl_save", help="if addded, will save a pickle every 5 matches", default=False)
+    # parser.add_argument("-offset", help="offset from url", default=False)
+    # parser.add_argument("--verbose", action="store_true", help="run scraper in verbose", default=False)
+    # parser.add_argument("-url", help="will use a url from a query on hltv instead of search parameters", default=None)
+    # args = parser.parse_args()
+    #
+    # startDate = args.startDate
+    # endDate = args.endDate
+    # scrape_series_data(startDate=startDate, endDate=endDate, verbose=args.verbose, team_name=args.team, pkl_save=args.pkl_save, match_search_url=args.url, offset=args.offset)
+
     
